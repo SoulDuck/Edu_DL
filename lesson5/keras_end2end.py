@@ -49,3 +49,7 @@ def pretrained_compile(model):
                   loss='categorical_crossentropy',
                   metrics=['acc'])
     return model
+
+
+def finetuning_train(conv_net):
+    pass;

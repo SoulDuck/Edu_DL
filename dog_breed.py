@@ -185,7 +185,7 @@ class Dog_Extractor(Extracter):
             # image dir : dir path to Unzip
             self.unzip(fpath , image_dir)
 
-        self.image_dir = os.path.join(image_dir , 'images')
+        self.image_dir = os.path.join(image_dir , 'Images')
         # record [filepath , label] to csv file
         self.datainfo_path = 'dataset_info.csv'
 
