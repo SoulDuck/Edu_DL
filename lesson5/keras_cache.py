@@ -45,8 +45,33 @@ def pretrained_compile(model):
 
 
 def pretrained_train(model , train_data, train_labels , epochs , batch_size , val_data , val_labels):
-    model.fit(train_data, train_labels, epochs=epochs, batch_size=batch_size,
+    history = model.fit(train_data, train_labels, epochs=epochs, batch_size=batch_size,
               validation_data=[val_data, val_labels])
+    return history
+
+
+def show_history(history):
+    import matplotlib.pyplot as plt
+    train_acc = history.history['acc']
+    train_loss= history.history['loss']
+    val_acc = history.history['val_acc']
+    val_loss = history.history['val_loss']
+
+    epochs = range(1, len(train_acc) + 1 )
+
+    plt.title('Train')
+    plt.plot(epochs , train_acc , label='Train Accuracy')
+    plt.plot(epochs , val_acc , label='Validation Accuracy')
+    plt.legend()
+    plt.show()
+    plt.close()
+
+    plt.title('Validation')
+    plt.plot(epochs , train_loss ,label='Train Loss')
+    plt.plot(epochs , val_loss , label='Validation Loss')
+    plt.legend()
+    plt.show()
+    plt.close()
 
 
 def pretrained_end2end(conv_base , fc_units_list ):
@@ -57,11 +82,8 @@ def pretrained_end2end(conv_base , fc_units_list ):
 
 
     for i,fc_units in enumerate(fc_units_list[:-1]):
+        print(fc_units)
         model.add(layers.Dense(fc_units , activation='relu'))
     model.add(layers.Dense(fc_units_list[-1] , activation='softmax'))
     model.summary()
-
-
-
-
-
+    return model
