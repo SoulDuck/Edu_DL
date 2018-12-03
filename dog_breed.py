@@ -154,6 +154,11 @@ class DogExtractor(object):
         if isinstance(slc, int):
             return self._view_by_index(slc)
         elif isinstance(slc, slice):
+            # slice 보정 (pandas의 경우 slice의 stop까지 포함시킴)
+            if slc.step is None or slc.step > 0:
+                slc = slice(slc.start, slc.stop-1, slc.step)
+            else:
+                slc = slice(slc.start, slc.stop+1, slc.step)
             return self._view_by_dataframe(self.info_df.loc[slc])
         elif isinstance(slc, list):
             return self._view_by_dataframe(self.info_df.loc[slc])
