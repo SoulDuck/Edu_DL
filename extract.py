@@ -10,6 +10,7 @@ import cv2
 import warnings
 from functools import lru_cache
 
+
 def download_dog_bread_dataset(download_dir):
     """
     stanford에서 제공하는 dog bread classification dataset을 다운
@@ -138,6 +139,16 @@ class DogExtractor(object):
         if not os.path.exists(info_path):
             download_dog_bread_dataset(data_dir)
         self.info_df = pd.read_csv(info_path, index_col=0)
+        self.info_df.label = self.info_df.label.astype('category')
+        self.n_classes = len(self.info_df.label.cat.categories)
+
+        def code2onehot(code):
+            onehot = np.zeros(self.n_classes)
+            onehot[code] = 1.
+            return onehot
+
+        self.label2onehot = {label_name : code2onehot(code)
+                             for code, label_name in enumerate(self.info_df.label.cat.categories)}
 
     def __len__(self):
         return len(self.info_df)
@@ -211,3 +222,9 @@ class DogExtractor(object):
                                            cv2.BORDER_CONSTANT, value=[0, 0, 0])
         dst_h, dst_w = self.image_shape[:2]
         return cv2.resize(image, (dst_w, dst_h))
+
+    def convert_to_onehot(self, labels):
+        if isinstance(labels, str):
+            return self.label2onehot[labels]
+        else:
+            return np.stack([self.label2onehot[label] for label in labels])
