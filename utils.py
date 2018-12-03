@@ -1,51 +1,24 @@
-import csv
 import numpy as np
-import pandas as pd
-import math
-import random
 import sys
 import os
 from PIL import Image
 import matplotlib.pyplot as plt
-import tensorflow as tf
-
-def readlines_csv(csv_path):
-    read_f = open(csv_path, 'r')
-    lines = read_f.readlines()
-    for l in lines:
-        print(l)
 
 
-def change_element(df, row_n, col_n, text ):
-
-    df.iloc[row_n, col_n] = text
-
-
-def change_elements(csv_path, row_list, col_list, texts):
-    df = pd.read_csv(csv_path)
-    assert len(row_list) == len(col_list) == len(texts)
-
-    rows_cols_texts = zip(row_list , col_list,texts)
-    for r, c, t in rows_cols_texts:
-        df.iloc[r, c] = t
-    df.to_csv(csv_path,index=False)
-
-def plot_images(imgs, names=None, random_order=False, savepath=None, no_axis=True):
-    h = math.ceil(math.sqrt(len(imgs)))
-    fig = plt.figure()
-    for i in range(len(imgs)):
-        ax = fig.add_subplot(h, h, i + 1)
-        if random_order:
-            ind = random.randint(0, len(imgs) - 1)
-        else:
-            ind = i
-        img = imgs[ind]
-        plt.axis('off')
-        plt.imshow(img)
-        if not names == None:
-            ax.set_xlabel(names[ind])
-    if not savepath is None:
-        plt.savefig(savepath)
+def plot_images(images, labels=None, save_path=None):
+    if images.ndim == 3:
+        images = [images]
+        labels = [labels]
+    h = np.ceil(np.sqrt(len(images)))
+    fig = plt.figure(figsize=(h*6,h*6))
+    plt.axis('off')
+    for ind in range(len(images)):
+        ax = fig.add_subplot(h, h, ind + 1)
+        ax.imshow(images[ind])
+        if labels is not None:
+            ax.set_title(labels[ind])
+    if not save_path is None:
+        plt.savefig(save_path)
     plt.show()
 
 
