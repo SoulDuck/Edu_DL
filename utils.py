@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 
 
 def plot_images(images, labels=None, save_path=None):
-    if images.ndim == 3:
+    if isinstance(images, np.ndarray) and images.ndim == 3:
         images = [images]
         labels = [labels]
     h = np.ceil(np.sqrt(len(images)))

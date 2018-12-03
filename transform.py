@@ -11,10 +11,13 @@ class Normalization(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, images):
-        if images.ndim == 4:
+        if isinstance(images, list) or isinstance(images, tuple):
             return np.array([self._transform(image) for image in images])
-        elif images.ndim == 3:
-            return self._transform(images)
+        elif isinstance(images, np.ndarray):
+            if images.ndim == 4:
+                return np.array([self._transform(image) for image in images])
+            elif images.ndim == 3:
+                return self._transform(images)
 
     def _transform(self, image):
         blank = np.zeros_like(image)
@@ -32,10 +35,13 @@ class RandomFlip(BaseEstimator, TransformerMixin):
         return self
 
     def transform(self, images):
-        if images.ndim == 4:
+        if isinstance(images, list) or isinstance(images, tuple):
             return np.array([self._transform(image) for image in images])
-        elif images.ndim == 3:
-            return self._transform(images)
+        elif isinstance(images, np.ndarray):
+            if images.ndim == 4:
+                return np.array([self._transform(image) for image in images])
+            elif images.ndim == 3:
+                return self._transform(images)
 
     def _transform(self, image):
         if np.random.random() > 0.5:
@@ -51,16 +57,19 @@ class RandomRescaleAndCrop(BaseEstimator, TransformerMixin):
     def __init__(self, max_ratio=1.2):
         if max_ratio < 1.0:
             raise ValueError("max_ratio는 1보다 큰 수여야 합니다.")
-        self.max_ratio = 1.2
+        self.max_ratio = max_ratio
 
     def fit(self, X, y=None):
         return self
 
     def transform(self, images):
-        if images.ndim == 4:
+        if isinstance(images, list) or isinstance(images, tuple):
             return np.array([self._transform(image) for image in images])
-        elif images.ndim == 3:
-            return self._transform(images)
+        elif isinstance(images, np.ndarray):
+            if images.ndim == 4:
+                return np.array([self._transform(image) for image in images])
+            elif images.ndim == 3:
+                return self._transform(images)
 
     def _transform(self, image):
         height, width = image.shape[:2]
@@ -85,3 +94,87 @@ class RandomRescaleAndCrop(BaseEstimator, TransformerMixin):
 
 
 
+class RandomRotation(BaseEstimator, TransformerMixin):
+    def __init__(self, max_degree=30):
+        if max_degree < 0:
+            raise ValueError("max_degree는 0보다 큰 수이어야 합니다.")
+        self.max_degree = int(max_degree)
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, images):
+        if isinstance(images, list) or isinstance(images, tuple):
+            return np.array([self._transform(image) for image in images])
+        elif isinstance(images, np.ndarray):
+            if images.ndim == 4:
+                return np.array([self._transform(image) for image in images])
+            elif images.ndim == 3:
+                return self._transform(images)
+
+    def _transform(self, image):
+        height, width = image.shape[:2]
+        degree = np.random.randint(-self.max_degree,self.max_degree)
+        M = cv2.getRotationMatrix2D((width // 2, height // 2), degree, 1)
+        return cv2.warpAffine(image, M, (width, height))
+
+    def __call__(self, images):
+        return self.transform(images)
+
+
+class RandomRotation(BaseEstimator, TransformerMixin):
+    def __init__(self, max_degree=30):
+        if max_degree < 0:
+            raise ValueError("max_degree는 0보다 큰 수이어야 합니다.")
+        self.max_degree = int(max_degree)
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, images):
+        if isinstance(images, list) or isinstance(images, tuple):
+            return np.array([self._transform(image) for image in images])
+        elif isinstance(images, np.ndarray):
+            if images.ndim == 4:
+                return np.array([self._transform(image) for image in images])
+            elif images.ndim == 3:
+                return self._transform(images)
+
+    def _transform(self, image):
+        height, width = image.shape[:2]
+        degree = np.random.randint(-self.max_degree,self.max_degree)
+        M = cv2.getRotationMatrix2D((width // 2, height // 2), degree, 1)
+        return cv2.warpAffine(image, M, (width, height))
+
+    def __call__(self, images):
+        return self.transform(images)
+
+
+class RandomColorShift(BaseEstimator, TransformerMixin):
+    def __init__(self, max_shift=10):
+        if max_shift< 0:
+            raise ValueError("max_shift는 0보다 큰 수이어야 합니다.")
+        self.max_shift = int(max_shift)
+
+    def fit(self, X, y=None):
+        return self
+
+    def transform(self, images):
+        if isinstance(images, list) or isinstance(images, tuple):
+            return np.array([self._transform(image) for image in images])
+        elif isinstance(images, np.ndarray):
+            if images.ndim == 4:
+                return np.array([self._transform(image) for image in images])
+            elif images.ndim == 3:
+                return self._transform(images)
+
+    def _transform(self, image):
+        shift_matrix = np.zeros_like(image, dtype=np.int)
+        for i in range(3):
+            shift_matrix[..., i] += np.random.randint(-self.max_shift, self.max_shift)
+
+        image = np.clip(image + shift_matrix,0,255)
+        return image.astype(np.uint8)
+
+    def __call__(self, images):
+        return self.transform(images)
