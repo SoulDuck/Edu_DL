@@ -2,7 +2,6 @@ import __init__
 from keras.models import Model
 from keras.layers import Input , Dense , Conv2D , MaxPooling2D, Flatten, Dropout
 from keras.optimizers import SGD
-import glob
 import configure as cfg
 
 # Load cifar-10 dataset
@@ -77,8 +76,8 @@ layer = VGG_block(kernel_sizes=[3,3,3,3] , out_chs=[512,512,512,512], strides=[1
 layer = VGG_block(kernel_sizes=[3,3,3,3] , out_chs=[512,512,512,512], strides=[1,1,1,1], input=layer)
 """
 
-top_conv = layer
 # FC Layer
+top_conv = layer
 flat_top_conv = Flatten()(top_conv)
 fc1 = Dense(4096, activation='relu')(flat_top_conv)
 fc1 = Dropout(0.5)(fc1)
