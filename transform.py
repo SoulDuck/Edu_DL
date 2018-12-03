@@ -1,4 +1,5 @@
 from sklearn.base import TransformerMixin, BaseEstimator
+from sklearn.pipeline import Pipeline
 import cv2
 import numpy as np
 

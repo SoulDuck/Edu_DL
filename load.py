@@ -5,6 +5,7 @@ import numpy as np
 class DogDataGenerator(Sequence):
     """
     StanFord Dog Breed DataGenerator
+    reference : https://stanford.edu/~shervine/blog/keras-how-to-generate-data-on-the-fly
     """
     def __init__(self, extractor, extractor_index=None, pipeline=None,
                  batch_size=32, shuffle=True):

@@ -34,7 +34,7 @@ def download_dog_bread_dataset(download_dir):
     if not os.path.exists(info_path):
         print("Summarize DataSet")
         info_df = summarize_directory(image_dir)
-        info_df.to_csv(info_path,index=True)
+        info_df.to_csv(info_path,index=False)
     else:
         print("Already Summarized")
 
@@ -138,7 +138,7 @@ class DogExtractor(object):
         info_path = os.path.join(data_dir, "datainfo.txt")
         if not os.path.exists(info_path):
             download_dog_bread_dataset(data_dir)
-        self.info_df = pd.read_csv(info_path, index_col=0)
+        self.info_df = pd.read_csv(info_path)
         self.info_df.label = self.info_df.label.astype('category')
         self.n_classes = len(self.info_df.label.cat.categories)
 
