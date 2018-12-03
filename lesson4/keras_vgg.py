@@ -41,14 +41,14 @@ def VGG_block(kernel_sizes , out_chs, strides, input):
 
 
 x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
-"""
+
 # VGG 11 Convnet
 layer = VGG_block(kernel_sizes=[3] , out_chs=[64], strides=[1] , input=x)
 layer = VGG_block(kernel_sizes=[3] , out_chs=[128], strides=[1] , input=layer)
 layer = VGG_block(kernel_sizes=[3,3] , out_chs=[256,256], strides=[1,1], input=layer)
 layer = VGG_block(kernel_sizes=[3,3] , out_chs=[512,512], strides=[1,1], input=layer)
 layer = VGG_block(kernel_sizes=[3,3] , out_chs=[512,512], strides=[1,1], input=layer)
-"""
+
 
 """
 # VGG 13 Convnet
