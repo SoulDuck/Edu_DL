@@ -3,8 +3,7 @@ import keras
 from keras.models import Model
 from keras.layers.merge import add
 from keras.layers import Input , Activation , Dense, Flatten , Conv2D ,MaxPooling2D , GlobalAveragePooling2D
-import configure as cfg
-
+from keras.optimizers import SGD
 
 """
 목적 : resnet paper 에 구현된 model 을 따라 만들어 보고 결과를 확인합니다.
@@ -106,7 +105,7 @@ def bottlenect_block_projection(input, out_ch, kernel_size=(3,3), strides=(2,2))
 ######      Define resnet     ########
 ######################################
 
-def resnet18(input , n_classes):
+def resnet18(input):
     """
     Usage :
     >>> x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
@@ -140,7 +139,7 @@ def resnet18(input , n_classes):
     pred = Dense(n_classes, activation='softmax')(layer)
     return pred
 
-def resnet_34(input , n_classes):
+def resnet_34(input):
     """
     >>> x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
     >>> dex = DogExtractor('/Users/seongjungkim/PycharmProjects/Edu_DL/data/dog_breed')
@@ -184,8 +183,9 @@ def resnet_34(input , n_classes):
 
 
 # Resnet 50
-def resnet_50(input , n_classes):
+def resnet_50(input):
     """
+    Usage :
     >>> x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
     >>> dex = DogExtractor('/Users/seongjungkim/PycharmProjects/Edu_DL/data/dog_breed')
     >>> doggen = DogDataGenerator(dex)
@@ -229,8 +229,9 @@ def resnet_50(input , n_classes):
 
 
 # Resnet 101
-def resnet_101(input , n_classes):
+def resnet_101(input):
     """
+    Usage :
     >>> x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
     >>> dex = DogExtractor('/Users/seongjungkim/PycharmProjects/Edu_DL/data/dog_breed')
     >>> doggen = DogDataGenerator(dex)
@@ -268,8 +269,9 @@ def resnet_101(input , n_classes):
     return pred
 
 
-def resnet_152(input , n_classes):
+def resnet_152(input):
     """
+    Usage :
     >>> x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
     >>> dex = DogExtractor('/Users/seongjungkim/PycharmProjects/Edu_DL/data/dog_breed')
     >>> doggen = DogDataGenerator(dex)
@@ -303,7 +305,38 @@ def resnet_152(input , n_classes):
     layer = bottlenect_block(layer, out_ch=512)
     layer = bottlenect_block(layer, out_ch=512)
 
+
+def logits(x , n_classes):
+    """
+    Usage :
+    :param x:
+    :param n_classes:
+    :return:
+    """
     # Global Average Pooling
-    layer = GlobalAveragePooling2D()(layer)
+    layer = GlobalAveragePooling2D()(x)
     pred = Dense(n_classes, activation='softmax')(layer)
     return pred
+
+
+def training(x, pred, datagen):
+    """
+    Usage :
+    >>> dex = DogExtractor('../data/dog_breed')
+    >>> doggen = DogDataGenerator(dex)
+    >>> x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
+    >>> top_conv = resnet_152(x)
+    >>> pred = logits(top_conv)
+    >>> training(x, pred , datagen)
+
+    :param x:
+    :param pred:
+    :param datagen:
+    :return:
+    """
+    # Training
+    model = Model(x, pred)
+    model.summary()
+    sgd = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
+    model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['mse', 'accuracy'])
+    model.fit_generator(generator=datagen)

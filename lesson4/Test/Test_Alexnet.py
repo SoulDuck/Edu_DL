@@ -18,5 +18,15 @@ class TestKerasAlexnet(unittest.TestCase):
         """
         pass;
 
+    def test_check_tensorboard_graph(self):
+        """
+        - Tensorboard 그래프를 그리고 구조가 잘 작성 되어 있는지 확인합니다
+        - Validation Loss Graph , Validation Accuracy Graph
+        - Train Loss Graph , Train Accuracy Graph
+
+        :return:
+        """
+
     def tearDown(self):
+
         pass;
