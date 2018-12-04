@@ -12,7 +12,6 @@ class TestKerasAlexnet(unittest.TestCase):
     def setUp(self):
         dex = DogExtractor('../../data/dog_breed')
         self.doggen = DogDataGenerator(dex)
-
     def test_keras_vgg11(self):
         """
         [ O ] VGG11 의 구조를 확인합니다

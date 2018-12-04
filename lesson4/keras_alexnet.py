@@ -11,7 +11,6 @@ def alexnet(x):
     Usage :
     >>> x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
     >>> alexnet(x)
-
     :return:
     """
     # Modeling
@@ -24,7 +23,7 @@ def alexnet(x):
     conv4_layer = Conv2D(32,(3,3),strides=(1,1),padding='same',activation='relu')(conv3_layer)
     conv4_layer = MaxPooling2D()(conv4_layer)
     conv5_layer = Conv2D(32,(3,3),strides=(1,1),padding='same',activation='relu')(conv4_layer)
-    return conv5_layer 
+    return conv5_layer
 
 def logits(x):
     flatten_layer = Flatten()(x)
@@ -36,7 +35,7 @@ def logits(x):
     return pred
 
 
-def training(x, pred, datagen):
+def training(x, pred, datagen , lr):
     """
     >>> dex = DogExtractor('../data/dog_breed')
     >>> doggen = DogDataGenerator(dex)
@@ -52,6 +51,6 @@ def training(x, pred, datagen):
     # Training
     model = Model(x, pred)
     model.summary()
-    sgd = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
+    sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['mse', 'accuracy'])
     model.fit_generator(generator=datagen)
