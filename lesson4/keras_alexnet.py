@@ -1,7 +1,6 @@
 from keras.models import Model
 from keras.layers import Input , Dense , Conv2D , MaxPooling2D , Flatten , Dropout
 from keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam
-import configure as cfg
 
 
 def alexnet(input_shape , n_classes):
