@@ -54,11 +54,11 @@ def vgg_11(input_shape, n_classes):
     x = Input(shape=input_shape)
 
     # VGG 13 Convnet
-    layer = vgg_block(kernel_sizes=[3], out_chs=[64], strides=[1], input=x)
-    layer = vgg_block(kernel_sizes=[3], out_chs=[128], strides=[1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[256, 256], strides=[1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], input=layer)
+    layer = vgg_block(kernel_sizes=[3], out_chs=[64], strides=[1], x=x)
+    layer = vgg_block(kernel_sizes=[3], out_chs=[128], strides=[1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[256, 256], strides=[1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], x=layer)
 
     # FC Layers
     pred = fc_block(layer, n_classes)
@@ -86,11 +86,11 @@ def vgg_13(input_shape, n_classes):
     x = Input(shape=input_shape)
 
     # VGG 13 Convnet
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[64, 64], strides=[1, 1], input=x)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[128, 128], strides=[1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[256, 256], strides=[1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], input=layer)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[64, 64], strides=[1, 1], x=x)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[128, 128], strides=[1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[256, 256], strides=[1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], x=layer)
 
     # FC Layers
     pred = fc_block(layer, n_classes)
@@ -118,11 +118,11 @@ def vgg_16(input_shape, n_classes):
     x = Input(shape=input_shape)
 
     # Feature Extractor
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[64, 64], strides=[1, 1], input=x)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[128, 128], strides=[1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3], out_chs=[256, 256, 256], strides=[1, 1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3], out_chs=[512, 512, 512], strides=[1, 1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3], out_chs=[512, 512, 512], strides=[1, 1, 1], input=layer)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[64, 64], strides=[1, 1], x=x)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[128, 128], strides=[1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3, 3], out_chs=[256, 256, 256], strides=[1, 1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3, 3], out_chs=[512, 512, 512], strides=[1, 1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3, 3], out_chs=[512, 512, 512], strides=[1, 1, 1], x=layer)
 
     # FC Layers
     pred = fc_block(layer, n_classes)
@@ -150,11 +150,11 @@ def vgg_19(input_shape, n_classes):
     x = Input(shape=input_shape)
 
     # Feature Extractor
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[64, 64], strides=[1, 1], input=x)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[128, 128], strides=[1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3, 3], out_chs=[256, 256, 256, 256], strides=[1, 1, 1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3, 3], out_chs=[512, 512, 512, 512], strides=[1, 1, 1, 1], input=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3, 3], out_chs=[512, 512, 512, 512], strides=[1, 1, 1, 1], input=layer)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[64, 64], strides=[1, 1], x=x)
+    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[128, 128], strides=[1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3, 3, 3], out_chs=[256, 256, 256, 256], strides=[1, 1, 1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3, 3, 3], out_chs=[512, 512, 512, 512], strides=[1, 1, 1, 1], x=layer)
+    layer = vgg_block(kernel_sizes=[3, 3, 3, 3], out_chs=[512, 512, 512, 512], strides=[1, 1, 1, 1], x=layer)
 
     # FC Layers
     pred = fc_block(layer, n_classes)
