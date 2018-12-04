@@ -105,7 +105,7 @@ def bottlenect_block_projection(input, out_ch, kernel_size=(3,3), strides=(2,2))
 ######      Define resnet     ########
 ######################################
 
-def resnet18(input):
+def resnet18(input_shape):
     """
     Usage :
     >>> x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))

@@ -101,4 +101,4 @@ def training(x, pred, datagen , lr , epochs):
     model.summary()
     sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['mse', 'accuracy'])
-    model.fit_generator(generator=datagen , epochs = epochs)
+    model.fit_generator(generator=datagen, epochs = epochs, )

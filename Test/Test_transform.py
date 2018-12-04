@@ -31,11 +31,9 @@ class TestTransform(unittest.TestCase):
         split = StratifiedShuffleSplit(n_splits=1, test_size=0.3)
         self.train_index, self.test_index = next(split.split(self.dex.index, self.dex.labels))
 
-
     def test_init(self):
         gen = DogDataGenerator(self.dex, self.train_index, self.train_pipeline, batch_size=16)
         batch_images, batch_labels = gen[0]
-
 
     def test_len(self):
         pass;
