@@ -4,26 +4,6 @@ from keras.layers import Input , Dense , Conv2D , MaxPooling2D, Flatten, Dropout
 from keras.optimizers import SGD
 import configure as cfg
 
-# Load cifar-10 dataset
-"""
-import cifar
-train_filenames = glob.glob('./cifar_10/cifar-10-batches-py/data_batch*')
-train_imgs, train_labs = cifar_10.get_images_labels(*train_filenames)
-"""
-
-# Load dogs dataset
-import dog_breed
-test_dir = '/Users/seongjungkim/PycharmProjects/alexnet/dog_breed'
-dog_extractor = dog_breed.Dog_Extractor(test_dir ,2 )
-train_imgs = dog_extractor.imgs
-train_labs = dog_extractor.labs
-
-# Load cifar-10 dataset
-train_imgs = train_imgs/255.
-
-# VGG 16
-# Block 1
-
 def VGG_block(kernel_sizes , out_chs, strides, input):
     """
     VGG Block 은 아래와 같은 목적으로 설계되었습니다

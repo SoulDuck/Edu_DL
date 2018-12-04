@@ -24,8 +24,7 @@ def alexnet(x):
     conv4_layer = Conv2D(32,(3,3),strides=(1,1),padding='same',activation='relu')(conv3_layer)
     conv4_layer = MaxPooling2D()(conv4_layer)
     conv5_layer = Conv2D(32,(3,3),strides=(1,1),padding='same',activation='relu')(conv4_layer)
-    top_conv = Flatten()(conv5_layer)
-    return top_conv
+    return conv5_layer 
 
 def logits(x):
     flatten_layer = Flatten()(x)

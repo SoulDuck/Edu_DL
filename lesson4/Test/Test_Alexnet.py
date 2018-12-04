@@ -3,20 +3,24 @@ import sys
 sys.path.append('../')
 from extract import DogExtractor
 from load import DogDataGenerator
-
+from keras.layers import Input
+from keras_alexnet import alexnet , logits , training
+import configure as cfg
 
 class TestKerasAlexnet(unittest.TestCase):
     def setUp(self):
-        dex = DogExtractor('../data/dog_breed')
+        dex = DogExtractor('../../data/dog_breed')
         self.doggen = DogDataGenerator(dex)
 
     def test_keras_alexnet(self):
         """
         [ O ] Alexnet 의 구조를 확인합니다
 
-        :return:
         """
-        pass;
+        x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
+        top_conv = alexnet(x)
+        pred = logits(top_conv)
+        training(x, pred , self.doggen)
 
     def test_check_tensorboard_graph(self):
         """
@@ -28,5 +32,4 @@ class TestKerasAlexnet(unittest.TestCase):
         """
 
     def tearDown(self):
-
         pass;
