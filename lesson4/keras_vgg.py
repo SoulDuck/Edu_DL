@@ -72,7 +72,7 @@ def vgg_11(input_shape, n_classes):
     return model
 
 
-def vgg13(input_shape, n_classes):
+def vgg_13(input_shape, n_classes):
     """
     Usage :
     >>> vgg_13(shape=(224,224,3) , n_classes=120)
