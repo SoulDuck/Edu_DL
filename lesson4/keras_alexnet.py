@@ -4,11 +4,12 @@ from keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nada
 import configure as cfg
 
 
-def alexnet(input_shape):
+def alexnet(input_shape , n_classes):
     """
-    input_shape = (height, width, n_channels)
-    :param input_shape:
-    :return: model
+
+    :param input_shape: tuple or list | Color Image : [height , widht , 3] ,Grey  Image : [height , widht , 1]
+    :param n_classes: int | the number of classes
+    :return:
     """
     # Input node
     x = Input(shape=input_shape)
@@ -44,7 +45,7 @@ def alexnet(input_shape):
     fc2 = Dropout(0.5)(fc2)
 
     # Logits layer
-    pred = Dense(cfg.n_classes, activation='softmax')(fc2)
+    pred = Dense(n_classes, activation='softmax')(fc2)
 
     # Create Model
     model = Model(conv5_layer, pred)
@@ -59,7 +60,7 @@ def training(model, optimizer_name, lr, epochs, data_generator):
     # Usage :
     >>> dex = DogExtractor('../data/dog_breed')
     >>> doggen = DogDataGenerator(dex)
-    >>> model = alexnet((224,224,3))
+    >>> model = alexnet((224,224,3) , 120)
     >>> training(model, 'momentum', 0.1, epochs=300, data_generator= doggen)
 
     :param model:
