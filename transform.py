@@ -161,6 +161,5 @@ class RandomColorShift(ImageTransformer):
             shift_matrix[...,
                          i] += np.random.randint(-self.max_shift,
                                                  self.max_shift)
-
         image = np.clip(image + shift_matrix, 0, 255)
         return image.astype(np.uint8)
