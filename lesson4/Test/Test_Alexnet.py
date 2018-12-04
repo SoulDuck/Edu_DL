@@ -20,6 +20,7 @@ class TestKerasAlexnet(unittest.TestCase):
     def test_keras_alexnet(self):
         """
         [ O ] Alexnet 의 구조를 확인합니다
+        [ O ] 실행을 확인합니다
 
         """
         x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
@@ -35,9 +36,10 @@ class TestKerasAlexnet(unittest.TestCase):
 
         :return:
         """
+        pass;
     def test_keras_alexnet_cifar(self):
         """
-
+        [ O ] Accuracy , 및 Loss 가 떨어지는 걸 확인합니다
         :return:
         """
         cifar10 = cifar.Cifar10()

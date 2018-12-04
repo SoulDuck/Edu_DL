@@ -27,9 +27,9 @@ def alexnet(x):
 
 def logits(x):
     flatten_layer = Flatten()(x)
-    fc1 = Dense(4096, activation='relu')(flatten_layer)
+    fc1 = Dense(1024, activation='relu')(flatten_layer)
     fc1 = Dropout(0.5)(fc1)
-    fc2 = Dense(4096, activation='relu')(fc1)
+    fc2 = Dense(1024, activation='relu')(fc1)
     fc2 = Dropout(0.5)(fc2)
     pred = Dense(cfg.n_classes , activation='softmax')(fc2)
     return pred
