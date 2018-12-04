@@ -63,3 +63,4 @@ class DogDataGenerator(Sequence):
         self.indexes = np.arange(len(self.extractor_indexes))
         if self.shuffle:
             np.random.shuffle(self.indexes)
+

@@ -108,7 +108,6 @@ def summarize_directory(dataset_dir):
 class DogExtractor(object):
     """
     스탠포드 데이터셋 dog bread classification의 데이터를 extract하는 메소드
-
     Example
     >>> dex = DogExtractor("./data")
     >>> image, label = dex[0] # indexing by integer
@@ -228,3 +227,5 @@ class DogExtractor(object):
             return self.label2onehot[labels]
         else:
             return np.stack([self.label2onehot[label] for label in labels])
+
+
