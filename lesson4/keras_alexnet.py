@@ -1,4 +1,3 @@
-import __init__
 from keras.models import Model
 from keras.layers import Input , Dense , Conv2D , MaxPooling2D , Flatten , Dropout
 from keras.optimizers import SGD
