@@ -35,7 +35,7 @@ def logits(x):
     return pred
 
 
-def training(x, pred, datagen , lr):
+def training(x, pred, datagen , lr , epochs):
     """
     >>> dex = DogExtractor('../data/dog_breed')
     >>> doggen = DogDataGenerator(dex)
