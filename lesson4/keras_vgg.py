@@ -83,26 +83,22 @@ def logits(x ,n_classes):
     pred = Dense(n_classes, activation='softmax')(fc2)
     return pred
 
-
-def training(x,pred,datagen):
+def training(x, pred, datagen , lr , epochs):
     """
-    Usage :
     >>> dex = DogExtractor('../data/dog_breed')
     >>> doggen = DogDataGenerator(dex)
     >>> x=Input(shape=(cfg.img_h, cfg.img_w , cfg.img_ch))
-    >>> top_conv = vgg11(x)
+    >>> top_conv = alexnet(x)
     >>> pred = logits(top_conv)
     >>> training(x, pred , datagen)
 
-    :param x:
-    :param pred:
+    :param model:
     :param datagen:
     :return:
     """
+    # Training
     model = Model(x, pred)
     model.summary()
-    # Training
-    sgd = SGD(lr=0.001, decay=1e-6, momentum=0.9, nesterov=True)
+    sgd = SGD(lr=lr, decay=1e-6, momentum=0.9, nesterov=True)
     model.compile(loss='categorical_crossentropy', optimizer=sgd, metrics=['mse', 'accuracy'])
-    model.fit_generator(generator=datagen)
-
+    model.fit_generator(generator=datagen , epochs = epochs)
