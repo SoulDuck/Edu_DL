@@ -1,65 +1,6 @@
 import tensorflow as tf
 import os
 
-
-# Conv Feature Extractor
-def generate_filter(kernel_shape):
-    """
-    Changed point :
-    We used Xavier Initalizer instead of random normal initializer
-
-    :param kernel_shape: list or tuple, MUST contain 4 elements [ ksize ,ksize ,in_ch, out_ch ] | E.g) [3,3,32,64]
-    :return:
-    """
-    n_out = kernel_shape[-1]
-    initializer = tf.contrib.layers.xavier_initializer_conv2d()
-    filters = tf.get_variable('filters', shape=kernel_shape, dtype=tf.float32, initializer=initializer)
-    bias = tf.get_variable('bias', initializer=tf.constant(0.0, shape=[n_out]))
-
-    return filters, bias
-
-
-def convolution(name, x, kernel_shape, strides, padding, activation):
-    with tf.variable_scope(name) as scope:
-        kernel, bias = generate_filter(kernel_shape)
-        layer = tf.nn.conv2d(x, kernel, strides, padding) + bias
-
-        return activation(layer)
-
-
-def generate_units(n_in_units, n_out_units):
-    initializer = tf.contrib.layers.xavier_initializer()
-    units = tf.get_variable('units', [n_in_units, n_out_units], tf.float32, initializer)
-    bias = tf.get_variable('bias', [n_out_units], tf.float32, initializer)
-
-    return units, bias
-
-
-def fc(name, x, n_out_units, dropout_prob, phase_train, activation):
-    """
-    - Generate Fully Connected Layers Unit
-    - Matrix multiply input with units and bias
-
-    :param name: str | E.g) fc1
-    :param x: tensor , MUST be tensor dimension 2 , | E.g)[2045, 10]
-    :param n_out_units: int | E.g)1024
-    :param dropout_prob: float | E.g) 0.5
-    :param phase_train: type bool tensor( placeholer node )
-    :param activation:
-    :return: tensor with 2 dimension
-    """
-
-    n_in_units = int(x.get_shape()[-1])
-    with tf.variable_scope(name) as scope:
-        units , bias = generate_units(n_in_units, n_out_units)
-        layer = tf.matmul(x, units) + bias
-        layer = tf.cond(phase_train, lambda: tf.nn.dropout(layer, dropout_prob), lambda: layer)
-
-        if activation:
-            layer = activation(layer)
-        return layer
-
-
 def alexnet(input_shape, n_classes):
     """
 
@@ -73,46 +14,58 @@ def alexnet(input_shape, n_classes):
     phase_train = tf.placeholder(dtype=tf.bool)
     in_ch = input_shape[-1]
 
+    # Convolution Initializer
+    he_init = tf.initializers.variance_scaling(scale=2)
+
     # layer1
-    layer = tf.layers.conv2d(x, 96, [11,11], strides=[4,4], padding='SAME')
-    layer = convolution('conv1', x, [11, 11, in_ch, 96], [1, 4, 4, 1], 'SAME', tf.nn.relu)
-    layer = tf.nn.max_pool(layer, [1, 3, 3, 1], strides=[1, 2, 2, 1], padding='VALID')
-
-    # layer2
-    layer = convolution('conv2', layer, [5, 5, 96, 256], [1, 1, 1, 1], 'SAME', tf.nn.relu)
-    layer = tf.nn.max_pool(layer, [1, 3, 3, 1], strides=[1, 2, 2, 1], padding='VALID')
-
-    # layer 3
-    layer = convolution('conv3', layer, [3, 3, 256, 384], [1, 1, 1, 1], 'SAME', tf.nn.relu)
-
-    # layer 4
-    layer = convolution('conv4', layer, [3, 3, 384, 384], [1, 1, 1, 1], 'SAME', tf.nn.relu)
-
-    # layer 5
-    layer = convolution('conv5', layer, [3, 3, 384, 256], [1, 1, 1, 1], 'SAME', tf.nn.relu)
+    with tf.variable_scope('conv1') as scope:
+        layer = tf.layers.conv2d(x, filters=96, kernel_size=11, strides=4, padding='same', kernel_initializer=he_init,
+                                 activation=tf.nn.relu, use_bias=True)
+        layer = tf.layers.max_pooling2d(layer, pool_size=3, strides=2,)
+    with tf.variable_scope('conv2') as scope:
+        # layer2
+        layer = tf.layers.conv2d(layer, filters=256, kernel_size=5, strides=1, padding='same', kernel_initializer=he_init,
+                                 activation=tf.nn.relu, use_bias=True)
+        layer = tf.layers.max_pooling2d(layer, pool_size=3, strides=2, padding='valid')
+    with tf.variable_scope('conv3') as scope:
+        # layer 3
+        layer = tf.layers.conv2d(layer, filters=384, kernel_size=3, strides=1, padding='same', kernel_initializer=he_init,
+                                 activation=tf.nn.relu, use_bias=True)
+    with tf.variable_scope('conv4') as scope:
+        # layer 4
+        layer = tf.layers.conv2d(layer, filters=384, kernel_size=3, strides=1, padding='same', kernel_initializer=he_init,
+                                 activation=tf.nn.relu, use_bias=True)
+    with tf.variable_scope('conv5') as scope:
+        # layer 5
+        layer = tf.layers.conv2d(layer, filters=256, kernel_size=3, strides=1, padding='same', kernel_initializer=he_init,
+                                 activation=tf.nn.relu, use_bias=True)
 
     # Change node name
     top_conv = tf.identity(layer, 'top_conv')
 
     # Fully Connected Layers
-    flat_layer = tf.contrib.layers.flatten(top_conv)
+    flat_layer = tf.layers.flatten(top_conv, name='flatten')
 
-    # FC Layer 1
-    layer = fc('fc1', flat_layer, 4096, 0.5, phase_train, tf.nn.relu)
-    layer = fc('fc2', layer, 4096, 0.5, phase_train, tf.nn.relu)
-    logits = fc('logits', layer, n_classes, 1.0, phase_train, None)
+    # Fully Connected Layer Initializer
+    xavier_init = tf.initializers.variance_scaling(scale=1)
+    with tf.variable_scope('fc1') as scope:
+        layer = tf.layers.dense(flat_layer, 4096, activation=tf.nn.relu, kernel_initializer=xavier_init, use_bias=True)
 
-    # Probabilify
-    preds = tf.nn.softmax(logits)
+    with tf.variable_scope('fc2') as scope:
+        layer = tf.layers.dense(layer, 4096, activation=tf.nn.relu, kernel_initializer=xavier_init, use_bias=True)
+
+    with tf.variable_scope('logits') as scope:
+        logits = tf.layers.dense(layer, n_classes, activation=None, kernel_initializer=xavier_init, use_bias=True)
+
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
     cost_op = tf.reduce_mean(costs_op)
 
     # Accuracy
-    preds_cls = tf.argmax(preds, axis=1)
     y_cls = tf.argmax(y, axis=1)
-    acc_op = tf.reduce_mean(tf.cast(tf.equal(preds_cls, y_cls), tf.float32))
+    correct = tf.nn.in_top_k(logits, y_cls , 1)
+    acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
 
     # return ops
     ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
@@ -190,7 +143,6 @@ def training(sess, n_step, batch_xs, batch_ys, ops):
     :param ops: tensor operations | E.g)
     :return: cost values
     """
-
 
     cost_values = []
     for i in range(n_step):
