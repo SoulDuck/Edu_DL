@@ -1,4 +1,3 @@
-import keras
 from keras.models import Model
 from keras.layers.merge import add
 from keras.layers import Input , Activation , Dense, Flatten , Conv2D ,MaxPooling2D , GlobalAveragePooling2D
@@ -7,8 +6,8 @@ from keras.optimizers import SGD
 
 """
 resnet paper : 에 구현된 model 을 구현합니다
-"""
 
+"""
 
 def stem(x):
     layer = Conv2D(64, kernel_size=(7,7), strides=(2,2), padding='same', activation='relu')(x)
@@ -132,8 +131,6 @@ def bottlenect_block_projection(x, out_ch):
 def resnet_18(input_shape, n_classes):
     """
     Usage :
-    >>> dex = DogExtractor('../data/dog_breed')
-    >>> doggen = DogDataGenerator(dex)
     >>> resnet_18(shape=(224,224,3) , n_classes=120)
 
     :param input_shape: tuple or list | E.g) (224,224,3)
@@ -179,10 +176,7 @@ def resnet_18(input_shape, n_classes):
 def resnet_34(input_shape, n_classes):
     """
     Usage :
-    >>> dex = DogExtractor('../data/dog_breed')
-    >>> doggen = DogDataGenerator(dex)
-    >>> resnet18(shape=(224,224,3) , n_classes=120)
-
+    >>> resnet_34(shape=(224,224,3) , n_classes=120)
     :param input_shape: tuple or list | E.g) (224,224,3)
     :param n_classes: int | E.g) 120
     :return: keras model
@@ -230,12 +224,9 @@ def resnet_34(input_shape, n_classes):
     return model
 
 
-
 def resnet_50(input_shape, n_classes):
     """
     Usage :
-    >>> dex = DogExtractor('../data/dog_breed')
-    >>> doggen = DogDataGenerator(dex)
     >>> resnet_50(shape=(224,224,3) , n_classes=120)
 
     :param input_shape: tuple or list | E.g) (224,224,3)
@@ -286,12 +277,9 @@ def resnet_50(input_shape, n_classes):
     return model
 
 
-
 def resnet_101(input_shape, n_classes):
     """
     Usage :
-    >>> dex = DogExtractor('../data/dog_breed')
-    >>> doggen = DogDataGenerator(dex)
     >>> resnet_101(shape=(224,224,3) , n_classes=120)
 
     :param input_shape: tuple or list | E.g) (224,224,3)
@@ -339,18 +327,15 @@ def resnet_101(input_shape, n_classes):
     return model
 
 
-
 def resnet_152(input_shape, n_classes):
     """
     Usage :
-    >>> dex = DogExtractor('../data/dog_breed')
-    >>> doggen = DogDataGenerator(dex)
     >>> resnet_152(shape=(224,224,3) , n_classes=120)
 
 
-    :param input:
-    :param n_classes:
-    :return:
+    :param input_shape: tuple or list | E.g) (224,224,3)
+    :param n_classes: int | E.g) 120
+    :return: keras model
     """
 
     # Input Layer
@@ -392,19 +377,23 @@ def resnet_152(input_shape, n_classes):
 
     return model
 
+
 def training(model, optimizer_name, lr, epochs, data_generator):
     """
-    # Usage :
+    >>> from extract import DogExtractor
+    >>> from load import DogDataGenerator
     >>> dex = DogExtractor('../data/dog_breed')
     >>> doggen = DogDataGenerator(dex)
-    >>> model = alexnet((224,224,3) , 120)
+    >>> model = resnet_18((224,224,3) , 120)
     >>> training(model, 'momentum', 0.1, epochs=300, data_generator= doggen)
 
-    :param model:
-    :param datagen:
-    :return:
+    :param model: keras model
+    :param optimizer_name: str | E.g) 'sgd'
+    :param lr: float | E.g)0.01
+    :param epochs: int | E.g) 100
+    :param data_generator: generator
+    :return: keras history
     """
-
     optimizer_name = optimizer_name.lower()
     if optimizer_name == 'sgd':
         optimizer = SGD(lr=lr, decay=1e-6, momentum=0.0, nesterov=False)
