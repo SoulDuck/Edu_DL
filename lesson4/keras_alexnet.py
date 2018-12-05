@@ -22,15 +22,15 @@ def alexnet(input_shape, n_classes):
     conv2_layer = MaxPooling2D(pool_size=3, strides=2, padding='valid')(conv2_layer)
 
     # Conv Layer 3
-    conv3_layer = Conv2D(32, (3, 3), strides=(1, 1), padding='same', activation='relu')(conv2_layer)
+    conv3_layer = Conv2D(384, (3, 3), strides=(1, 1), padding='same', activation='relu')(conv2_layer)
     conv3_layer = MaxPooling2D()(conv3_layer)
 
     # Conv Layer 4
-    conv4_layer = Conv2D(32, (3, 3), strides=(1, 1), padding='same', activation='relu')(conv3_layer)
+    conv4_layer = Conv2D(384, (3, 3), strides=(1, 1), padding='same', activation='relu')(conv3_layer)
     conv4_layer = MaxPooling2D()(conv4_layer)
 
     # Conv Layer 5
-    conv5_layer = Conv2D(32, (3, 3), strides=(1, 1), padding='same', activation='relu')(conv4_layer)
+    conv5_layer = Conv2D(256, (3, 3), strides=(1, 1), padding='same', activation='relu')(conv4_layer)
 
     # line up the layers
     flatten_layer = Flatten()(conv5_layer)
