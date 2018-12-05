@@ -3,7 +3,7 @@ from keras.layers import Input , Dense , Conv2D , MaxPooling2D , Flatten , Dropo
 from keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam
 
 
-def alexnet(input_shape , n_classes):
+def alexnet(input_shape, n_classes):
     """
 
     :param input_shape: tuple or list | Color Image : [height , widht , 3] ,Grey  Image : [height , widht , 1]
@@ -56,17 +56,20 @@ def alexnet(input_shape , n_classes):
 
 def training(model, optimizer_name, lr, epochs, data_generator):
     """
-    # Usage :
+    >>> from extract import DogExtractor
+    >>> from load import DogDataGenerator
     >>> dex = DogExtractor('../data/dog_breed')
     >>> doggen = DogDataGenerator(dex)
     >>> model = alexnet((224,224,3) , 120)
     >>> training(model, 'momentum', 0.1, epochs=300, data_generator= doggen)
 
-    :param model:
-    :param datagen:
-    :return:
+    :param model: keras model
+    :param optimizer_name: str | E.g) 'sgd'
+    :param lr: float | E.g)0.01
+    :param epochs: int | E.g) 100
+    :param data_generator: generator
+    :return: keras history
     """
-
     optimizer_name = optimizer_name.lower()
     if optimizer_name == 'sgd':
         optimizer = SGD(lr=lr, decay=1e-6, momentum=0.0, nesterov=False)
@@ -96,4 +99,4 @@ def training(model, optimizer_name, lr, epochs, data_generator):
         raise ValueError
 
     model.compile(loss='categorical_crossentropy', optimizer=optimizer, metrics=['mse', 'accuracy'])
-    model.fit_generator(generator=data_generator, epochs=epochs)
+    return model.fit_generator(generator=data_generator, epochs=epochs)
