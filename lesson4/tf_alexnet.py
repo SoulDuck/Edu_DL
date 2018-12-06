@@ -3,6 +3,25 @@ import os
 
 
 # Conv Feature Extractor
+def variable_summaries(name , var):
+    """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
+    with tf.name_scope('{}_summaries'.format(name)):
+        mean = tf.reduce_mean(var)
+        tf.summary.scalar('mean', mean)
+    with tf.name_scope('stddev'):
+        stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+        tf.summary.scalar('stddev', stddev)
+        tf.summary.scalar('max', tf.reduce_max(var))
+        tf.summary.scalar('min', tf.reduce_min(var))
+        tf.summary.histogram('histogram', var)
+
+
+def ops_summaries(ops):
+    tf.summary.scalar('cost',ops['cost_op'])
+    tf.summary.scalar('accuracy', ops['acc_op'])
+    #tf.summary.image('input', ops['x'], 16)
+
+
 def generate_filter(kernel_shape):
     """
     Changed point :
@@ -15,6 +34,8 @@ def generate_filter(kernel_shape):
     initializer = tf.contrib.layers.xavier_initializer_conv2d()
     filters = tf.get_variable('filters', shape=kernel_shape, dtype=tf.float32, initializer=initializer)
     bias = tf.get_variable('bias', initializer=tf.constant(0.0, shape=[n_out]))
+    variable_summaries('filters', filters)
+    variable_summaries('bias', bias)
 
     return filters, bias
 
@@ -74,7 +95,7 @@ def alexnet(input_shape, n_classes):
     in_ch = input_shape[-1]
 
     # layer1
-    layer = tf.layers.conv2d(x, 96, [11,11], strides=[4,4], padding='SAME')
+
     layer = convolution('conv1', x, [11, 11, in_ch, 96], [1, 4, 4, 1], 'SAME', tf.nn.relu)
     layer = tf.nn.max_pool(layer, [1, 3, 3, 1], strides=[1, 2, 2, 1], padding='VALID')
 
@@ -102,7 +123,7 @@ def alexnet(input_shape, n_classes):
     layer = fc('fc2', layer, 4096, 0.5, phase_train, tf.nn.relu)
     logits = fc('logits', layer, n_classes, 1.0, phase_train, None)
 
-    # Probabilify
+    # Probability
     preds = tf.nn.softmax(logits)
 
     # Mean cost values
@@ -114,8 +135,14 @@ def alexnet(input_shape, n_classes):
     y_cls = tf.argmax(y, axis=1)
     acc_op = tf.reduce_mean(tf.cast(tf.equal(preds_cls, y_cls), tf.float32))
 
-    # return ops
+    # operations
     ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
+
+    # summary ops
+    ops_summaries(ops)
+
+    summaries_op = tf.summary.merge_all()
+    ops['summaries_op'] = summaries_op
 
     return ops
 
@@ -171,14 +198,11 @@ def create_session(prefix):
         os.makedirs(model_dir)
     saver = tf.train.Saver()
 
-    log_dir = './{}_logs'.format(prefix)
-    tf_writer = tf.summary.FileWriter(log_dir)
-
-    return sess, saver, tf_writer
+    return sess, saver
 
 
 
-def training(sess, n_step, batch_xs, batch_ys, ops):
+def training(sess, batch_xs, batch_ys, ops ,writer, global_step, n_iter):
     """
     Usage :
     >>> training(sess, n_step, batch_xs, batch_ys, ops)
@@ -191,18 +215,16 @@ def training(sess, n_step, batch_xs, batch_ys, ops):
     :return: cost values
     """
 
-
-    cost_values = []
-    for i in range(n_step):
-        fetches = [ops['train_op'], ops['cost_op']]
+    for step in range(global_step, global_step + n_iter):
+        fetches = [ops['train_op'], ops['cost_op'], ops['summaries_op']]
         feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: True}
-        _, cost = sess.run(fetches, feed_dict)
-        cost_values.append(cost)
+        _, cost, summeries = sess.run(fetches, feed_dict)
+        writer.add_summary(summeries,step)
 
-    return cost_values
+    return step
 
 
-def eval(sess, batch_xs, batch_ys, ops):
+def eval(sess, batch_xs, batch_ys, ops, writer, global_step):
     """
     Usage :
     >>> eval(sess, batch_xs, batch_ys, ops)
@@ -213,8 +235,9 @@ def eval(sess, batch_xs, batch_ys, ops):
     :return: cost values
     """
 
-    fetches = [ops['acc_op'], ops['cost_op']]
+    fetches = [ops['acc_op'], ops['cost_op'], ops['summaries_op']]
     feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: False}
+    acc, cost, summeries = sess.run(fetches, feed_dict)
+    writer.add_summary(summeries, global_step=global_step)
 
-    return sess.run(fetches, feed_dict)
 
