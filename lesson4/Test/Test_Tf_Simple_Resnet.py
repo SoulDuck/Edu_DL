@@ -228,8 +228,7 @@ class TestTFSimpleResnet(unittest.TestCase):
         ops = tf_simple_resnet.resnet_34([None, 224, 224, 3], 10)
         tf_simple_resnet.compile('sgd', ops, 0.01)
         sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], 30, ops)
-        pass;
+        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
 
     def test_compile_50(self):
         tf.reset_default_graph()
@@ -249,8 +248,8 @@ class TestTFSimpleResnet(unittest.TestCase):
         ops = tf_simple_resnet.resnet_34([None, 224, 224, 3], 10)
         tf_simple_resnet.compile('sgd', ops, 0.01)
         sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], 30, ops)
-        pass;
+        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
+
 
     def test_compile_101(self):
         tf.reset_default_graph()
@@ -270,7 +269,7 @@ class TestTFSimpleResnet(unittest.TestCase):
         ops = tf_simple_resnet.resnet_34([None, 224, 224, 3], 10)
         tf_simple_resnet.compile('sgd', ops, 0.01)
         sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], 30, ops)
+        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
         pass;
 
 
@@ -292,5 +291,5 @@ class TestTFSimpleResnet(unittest.TestCase):
         ops = tf_simple_resnet.resnet_34([None, 224, 224, 3], 10)
         tf_simple_resnet.compile('sgd', ops, 0.01)
         sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], 30, ops)
+        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
         pass;
