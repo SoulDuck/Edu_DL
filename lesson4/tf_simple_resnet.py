@@ -222,7 +222,7 @@ def bottlenect_block_projection(x, out_ch, phase_train):
     layer = tf.nn.relu(layer)
 
     # Projection layer
-    projection_input = tf.layers.conv2d(x, filters=out_ch, kernel_size=(1, 1), strides=(1, 1), padding='same',
+    projection_input = tf.layers.conv2d(x, filters=out_ch, kernel_size=(1, 1), strides=strides, padding='same',
                                         activation=activation, kernel_initializer=he_init)
     layer = batch_normalization(layer, phase_train=phase_train, scope_name='stem1')
     layer = tf.nn.relu(layer)
