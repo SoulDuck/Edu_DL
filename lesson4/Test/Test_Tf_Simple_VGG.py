@@ -34,7 +34,6 @@ class TestTFSimpleVGG(unittest.TestCase):
         self.val_imgs = np.asarray(tmp_list)
         self.assertListEqual(list(np.shape(self.val_imgs)), [5000, 224, 224, 3])
 
-
     def test_vgg11(self):
         """
         알렉스넷이 잘 구성되었는지 학인합니다.
@@ -42,6 +41,7 @@ class TestTFSimpleVGG(unittest.TestCase):
         """
         tf_simple_vgg.vgg_11((None, 224, 224, 3), n_classes=120)
         tf.reset_default_graph()
+
     def test_vgg13(self):
         """
         알렉스넷이 잘 구성되었는지 학인합니다.
@@ -57,6 +57,7 @@ class TestTFSimpleVGG(unittest.TestCase):
         """
         tf_simple_vgg.vgg_16((None, 224, 224, 3), n_classes=120)
         tf.reset_default_graph()
+
     def test_vgg119(self):
         """
         알렉스넷이 잘 구성되었는지 학인합니다.
@@ -121,7 +122,7 @@ class TestTFSimpleVGG(unittest.TestCase):
         # Create session
         # Add train_op to ops
         sess, saver, writer = tf_simple_vgg.create_session('vgg_11')
-        self.assertIs(os.path.isdir('./vgg_11_logs') , True)
+        self.assertIs(os.path.isdir('./vgg_11_logs'), True)
         self.assertIs(os.path.isdir('./vgg_11_models'), True)
         # Training
         cost = tf_simple_vgg.training(sess, 1, self.val_imgs[:3], self.val_labs[:3], ops=ops)
