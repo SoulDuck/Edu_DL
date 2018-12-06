@@ -121,11 +121,10 @@ class TestTFSimpleVGG(unittest.TestCase):
 
         # Create session
         # Add train_op to ops
-        sess, saver, writer = tf_simple_vgg.create_session('vgg_11')
-        self.assertIs(os.path.isdir('./vgg_11_logs'), True)
-        self.assertIs(os.path.isdir('./vgg_11_models'), True)
+        sess = tf_simple_vgg.create_session('vgg_11')
+
         # Training
-        cost = tf_simple_vgg.training(sess, 1, self.val_imgs[:3], self.val_labs[:3], ops=ops)
+        cost = tf_simple_vgg.training(sess, 2, self.val_imgs, self.val_labs, 10 , ops=ops)
         self.assertIsInstance(cost, list)
 
         # Reset tensorflow graph

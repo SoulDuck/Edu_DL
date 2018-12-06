@@ -1,5 +1,8 @@
 import tensorflow as tf
 import os
+import numpy as np
+import random
+
 
 def vgg_11(input_shape, n_classes):
     """
@@ -370,32 +373,37 @@ def create_session(prefix):
     sess = tf.Session(config=config)
     init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
     sess.run(init)
+    return sess
 
-    model_dir = './{}_models'.format(prefix)
-    if not os.path.isdir(model_dir):
-        os.makedirs(model_dir)
-    saver = tf.train.Saver()
 
-    log_dir = './{}_logs'.format(prefix)
-    tf_writer = tf.summary.FileWriter(log_dir)
+def next_batch(imgs, labs, batch_size):
+    # random shuffle list
+    indices = random.sample(range(np.shape(imgs)[0]), batch_size)
 
-    return sess, saver, tf_writer
+    imgs = np.asarray(imgs)
+    batch_xs = imgs[indices]
+    batch_ys = labs[indices]
+    return batch_xs, batch_ys
 
-def training(sess, n_step, batch_xs, batch_ys, ops):
+
+def training(sess, n_step, train_images, train_labels, batch_size, ops):
     """
     Usage :
     >>> training(sess, n_step, batch_xs, batch_ys, ops)
-
     :param sess: tf.Session
     :param n_step: int | E.g)
-    :param batch_xs: xs | E.g)
-    :param batch_ys: ys | E.g)
+    :param train_images: Numpy | E.g)
+    :param train_labels: Numpy | E.g)
     :param ops: tensor operations | E.g)
     :return: cost values
     """
 
     cost_values = []
     for i in range(n_step):
+
+        # Extract batch images , labels
+        batch_xs, batch_ys = next_batch(train_images, train_labels, batch_size)
+        # Training
         fetches = [ops['train_op'], ops['cost_op']]
         feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: True}
         _, cost = sess.run(fetches, feed_dict)

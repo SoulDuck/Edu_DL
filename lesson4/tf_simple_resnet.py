@@ -575,6 +575,7 @@ def next_batch(imgs, labs, batch_size):
     batch_ys = labs[indices]
     return batch_xs, batch_ys
 
+
 def training(sess, n_step, train_images, train_labels, batch_size, ops):
     """
     Usage :
@@ -583,6 +584,7 @@ def training(sess, n_step, train_images, train_labels, batch_size, ops):
     :param n_step: int | E.g)
     :param train_images: Numpy | E.g)
     :param train_labels: Numpy | E.g)
+    :param batch_size: Int | E.g) 64
     :param ops: tensor operations | E.g)
     :return: cost values
     """

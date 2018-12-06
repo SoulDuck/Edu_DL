@@ -207,8 +207,6 @@ class TestTFSimpleResnet(unittest.TestCase):
         tf_simple_resnet.compile('sgd', ops, 0.01)
         sess = tf_simple_resnet.create_session()
         tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], 30, ops)
-        pass;
-
 
     def test_compile_34(self):
         tf.reset_default_graph()
@@ -250,7 +248,6 @@ class TestTFSimpleResnet(unittest.TestCase):
         sess = tf_simple_resnet.create_session()
         tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
 
-
     def test_compile_101(self):
         tf.reset_default_graph()
         ops = tf_simple_resnet.resnet_101([None, 224, 224, 3], 120)
@@ -270,26 +267,23 @@ class TestTFSimpleResnet(unittest.TestCase):
         tf_simple_resnet.compile('sgd', ops, 0.01)
         sess = tf_simple_resnet.create_session()
         tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
-        pass;
 
-
-    def test_compile_151(self):
+    def test_compile_152(self):
         tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_151([None, 224, 224, 3], 120)
+        ops = tf_simple_resnet.resnet_152([None, 224, 224, 3], 120)
         tf_simple_resnet.compile('sgd', ops, 0.01)
         tf_simple_resnet.create_session()
 
-    def test_training_151(self):
+    def test_training_152(self):
         tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_151([None, 224, 224, 3], 10)
+        ops = tf_simple_resnet.resnet_152([None, 224, 224, 3], 10)
         tf_simple_resnet.compile('sgd', ops, 0.01)
         sess = tf_simple_resnet.create_session()
         tf_simple_resnet.training(sess, 5, self.val_imgs, self.val_labs, 30, ops)
 
-    def test_testing_151(self):
+    def test_testing_152(self):
         tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_15([None, 224, 224, 3], 10)
+        ops = tf_simple_resnet.resnet_152([None, 224, 224, 3], 10)
         tf_simple_resnet.compile('sgd', ops, 0.01)
         sess = tf_simple_resnet.create_session()
         tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
-        pass;

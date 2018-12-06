@@ -187,10 +187,10 @@ class TestTFSimpleAlexnet(unittest.TestCase):
 
         # Create session
         # Add train_op to ops
-        sess, saver, writer = tf_simple_alexnet.create_session('alexnet')
+        sess = tf_simple_alexnet.create_session('alexnet')
 
         # Training
-        cost = tf_simple_alexnet.training(sess, 1, self.val_imgs[:60], self.val_labs[:60], ops=ops)
+        cost = tf_simple_alexnet.training(sess, 3, self.val_imgs[:60], self.val_labs[:60],30 ,ops=ops)
         self.assertIsInstance(cost, list)
 
         # Reset tensorflow graph
@@ -205,7 +205,7 @@ class TestTFSimpleAlexnet(unittest.TestCase):
 
         # add train_op to ops
         # create session
-        sess, saver, writer = tf_simple_alexnet.create_session('alexnet')
+        sess = tf_simple_alexnet.create_session('alexnet')
 
         # training
         acc, cost = tf_simple_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops)
