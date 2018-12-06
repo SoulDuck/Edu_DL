@@ -101,10 +101,10 @@ def vgg_13(input_shape, n_classes):
 
     with tf.variable_scope('fc1'):
         fc1 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc1 = tf.cond(phase_train, lambda: tf.nn.dropout(fc1), lambda: fc1)
+        fc1 = tf.cond(phase_train, lambda: tf.nn.dropout(fc1, 0.5), lambda: fc1)
     with tf.variable_scope('fc2'):
         fc2 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2), lambda: fc2)
+        fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2, 0.5), lambda: fc2)
     with tf.variable_scope('logits'):
         logits = tf.layers.dense(fc2, n_classes, use_bias=True, kernel_initializer=xavier_init)
 
@@ -167,10 +167,10 @@ def vgg_16(input_shape, n_classes):
 
     with tf.variable_scope('fc1'):
         fc1 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc1 = tf.cond(phase_train, lambda: tf.nn.dropout(fc1), lambda: fc1)
+        fc1 = tf.cond(phase_train, lambda: tf.nn.dropout(fc1, 0.5), lambda: fc1)
     with tf.variable_scope('fc2'):
         fc2 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2), lambda: fc2)
+        fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2, 0.5), lambda: fc2)
     with tf.variable_scope('logits'):
         logits = tf.layers.dense(fc2, n_classes, use_bias=True, kernel_initializer=xavier_init)
 
@@ -240,10 +240,10 @@ def vgg_19(input_shape, n_classes):
 
     with tf.variable_scope('fc1'):
         fc1 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc1 = tf.cond(phase_train, lambda: tf.nn.dropout(fc1), lambda: fc1)
+        fc1 = tf.cond(phase_train, lambda: tf.nn.dropout(fc1, 0.5), lambda: fc1)
     with tf.variable_scope('fc2'):
         fc2 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2), lambda: fc2)
+        fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2, 0.5), lambda: fc2)
     with tf.variable_scope('logits'):
         logits = tf.layers.dense(fc2, n_classes, use_bias=True, kernel_initializer=xavier_init)
 
