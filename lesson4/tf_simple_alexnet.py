@@ -127,6 +127,7 @@ def create_session(prefix):
     sess.run(init)
     return sess
 
+
 def next_batch(imgs, labs, batch_size):
     # random shuffle list
     indices = random.sample(range(np.shape(imgs)[0]), batch_size)

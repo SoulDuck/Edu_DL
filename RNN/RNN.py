@@ -21,6 +21,8 @@ batch_size = 1   # one sentence
 sequence_length = 6  # |ihello| == 6
 learning_rate = 0.1
 
+# hi hello
+# hi hell o
 X = tf.placeholder(
     tf.float32, [None, sequence_length, input_dim])  # X one-hot
 Y = tf.placeholder(tf.int32, [None, sequence_length])  # Y label
