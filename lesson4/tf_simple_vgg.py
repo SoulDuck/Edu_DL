@@ -12,22 +12,37 @@ def vgg_11(input_shape, n_classes):
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
     phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
+    # Convolution Initializer
+    he_init = tf.initializers.variance_scaling(scale=2)
+
     activation = tf.nn.relu
-    layer = tf.layers.conv2d(x, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    # Block 1
+    layer = tf.layers.conv2d(x, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
-    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    # Block 2
+    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
-    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    # Block 3
+    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    # Block 4
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    # Block 5
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # FC Layer
@@ -69,30 +84,43 @@ def vgg_13(input_shape, n_classes):
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
     phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
+    # Convolution Initializer
+    he_init = tf.initializers.variance_scaling(scale=2)
+
     activation = tf.nn.relu
     # Block 1
-    layer = tf.layers.conv2d(x, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(x, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 2
-    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 3
-    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 4
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 5
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # FC Layer
@@ -133,33 +161,49 @@ def vgg_16(input_shape, n_classes):
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
     phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
+    # Convolution Initializer
+    he_init = tf.initializers.variance_scaling(scale=2)
+
     activation = tf.nn.relu
     # Block 1
-    layer = tf.layers.conv2d(x, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(x, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 2
-    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 3
-    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 4
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 5
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     flat_layer = tf.contrib.layers.flatten(layer)
@@ -173,7 +217,6 @@ def vgg_16(input_shape, n_classes):
         fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2, 0.5), lambda: fc2)
     with tf.variable_scope('logits'):
         logits = tf.layers.dense(fc2, n_classes, use_bias=True, kernel_initializer=xavier_init)
-
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
@@ -200,38 +243,58 @@ def vgg_19(input_shape, n_classes):
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
     phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
+    # Convolution Initializer
+    he_init = tf.initializers.variance_scaling(scale=2)
+
     activation = tf.nn.relu
     # Feature Extractor
     # Block 1
-    layer = tf.layers.conv2d(x, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(x, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 64, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 2
-    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 128, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 3
-    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 256, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 4
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # Block 5
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
-    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
+    layer = tf.layers.conv2d(layer, 3, 512, 1, padding='same', activation=tf.nn.relu, use_bias=True,
+                             kernel_initializer=he_init)
     layer = tf.layers.max_pooling2d(layer, pool_size=2, strides=2, padding='valid')
 
     # FC Layers
