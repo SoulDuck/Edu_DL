@@ -39,32 +39,32 @@ class TestTFSimpleVGG(unittest.TestCase):
         알렉스넷이 잘 구성되었는지 학인합니다.
         :return:
         """
-        tf_simple_vgg.vgg_11((None, 224, 224, 3), n_classes=120)
         tf.reset_default_graph()
+        tf_simple_vgg.vgg_11((None, 224, 224, 3), n_classes=120)
 
     def test_vgg13(self):
         """
         알렉스넷이 잘 구성되었는지 학인합니다.
         :return:
         """
-        tf_simple_vgg.vgg_13((None, 224, 224, 3), n_classes=120)
         tf.reset_default_graph()
+        tf_simple_vgg.vgg_13((None, 224, 224, 3), n_classes=120)
 
     def test_vgg16(self):
         """
         알렉스넷이 잘 구성되었는지 학인합니다.
         :return:
         """
-        tf_simple_vgg.vgg_16((None, 224, 224, 3), n_classes=120)
         tf.reset_default_graph()
+        tf_simple_vgg.vgg_16((None, 224, 224, 3), n_classes=120)
 
     def test_vgg119(self):
         """
         알렉스넷이 잘 구성되었는지 학인합니다.
         :return:
         """
-        tf_simple_vgg.vgg_19((None, 224, 224, 3), n_classes=120)
         tf.reset_default_graph()
+        tf_simple_vgg.vgg_19((None, 224, 224, 3), n_classes=120)
 
     def test_compile_sgd(self):
         """
