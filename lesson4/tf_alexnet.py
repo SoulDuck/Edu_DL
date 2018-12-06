@@ -3,7 +3,7 @@ import os
 
 
 # Conv Feature Extractor
-def variable_summaries(name , var):
+def variable_summaries(name, var):
     """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
     with tf.name_scope('{}_summaries'.format(name)):
         mean = tf.reduce_mean(var)
@@ -17,9 +17,12 @@ def variable_summaries(name , var):
 
 
 def ops_summaries(ops):
-    tf.summary.scalar('cost',ops['cost_op'])
+    tf.summary.scalar('cost', ops['cost_op'])
     tf.summary.scalar('accuracy', ops['acc_op'])
-    #tf.summary.image('input', ops['x'], 16)
+    """
+    if you want add image to tensorboard, uncomment this line 
+    tf.summary.image('input', ops['x'], 16)
+    """
 
 
 def generate_filter(kernel_shape):
@@ -41,7 +44,7 @@ def generate_filter(kernel_shape):
 
 
 def convolution(name, x, kernel_shape, strides, padding, activation):
-    with tf.variable_scope(name) as scope:
+    with tf.variable_scope(name):
         kernel, bias = generate_filter(kernel_shape)
         layer = tf.nn.conv2d(x, kernel, strides, padding) + bias
 
@@ -71,8 +74,8 @@ def fc(name, x, n_out_units, dropout_prob, phase_train, activation):
     """
 
     n_in_units = int(x.get_shape()[-1])
-    with tf.variable_scope(name) as scope:
-        units , bias = generate_units(n_in_units, n_out_units)
+    with tf.variable_scope(name):
+        units, bias = generate_units(n_in_units, n_out_units)
         layer = tf.matmul(x, units) + bias
         layer = tf.cond(phase_train, lambda: tf.nn.dropout(layer, dropout_prob), lambda: layer)
 
@@ -84,7 +87,7 @@ def fc(name, x, n_out_units, dropout_prob, phase_train, activation):
 def alexnet(input_shape, n_classes):
     """
 
-    :param input_shape MUST be 4 dimension tensor | E.g) [None, 224,224,3]:
+    :param input_shape: MUST be 4 dimension tensor | E.g) [None, 224,224,3]:
     :param n_classes:
     :return:
     """
@@ -179,6 +182,7 @@ def compile(optimizer_name, ops, learning_rate):
 
     return ops
 
+
 def create_session(prefix):
 
     """config Option
@@ -187,7 +191,7 @@ def create_session(prefix):
      config.gpu_options.allow_growth : 처음부터 메모리를 점유하지 말고 필요한 메모리를 점차 증가 시킵니다
     """
 
-    config = tf.ConfigProto(allow_soft_placement=True,log_device_placement=True)
+    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
     config.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
     init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
@@ -201,17 +205,18 @@ def create_session(prefix):
     return sess, saver
 
 
-
-def training(sess, batch_xs, batch_ys, ops ,writer, global_step, n_iter):
+def training(sess, batch_xs, batch_ys, ops, writer, global_step, n_iter):
     """
     Usage :
-    >>> training(sess, n_step, batch_xs, batch_ys, ops)
-
+    >>> training(sess, batch_xs, batch_ys, ops, writer, global_step, n_iter)
     :param sess: tf.Session
-    :param n_step: int | E.g)
     :param batch_xs: xs | E.g)
     :param batch_ys: ys | E.g)
     :param ops: tensor operations | E.g)
+    :param writer: tf.Summary.Writer
+    :param global_step: int | 1000
+    :param n_iter: int | 100
+
     :return: cost values
     """
 
@@ -219,8 +224,7 @@ def training(sess, batch_xs, batch_ys, ops ,writer, global_step, n_iter):
         fetches = [ops['train_op'], ops['cost_op'], ops['summaries_op']]
         feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: True}
         _, cost, summeries = sess.run(fetches, feed_dict)
-        writer.add_summary(summeries,step)
-
+        writer.add_summary(summeries, step)
     return step
 
 
@@ -232,6 +236,9 @@ def eval(sess, batch_xs, batch_ys, ops, writer, global_step):
     :param batch_xs: xs | E.g)
     :param batch_ys: ys | E.g)
     :param ops: tensor operations | E.g)
+    :param writer: tf.Summary.Writer
+    :param global_step: int | 1000
+
     :return: cost values
     """
 
@@ -239,5 +246,3 @@ def eval(sess, batch_xs, batch_ys, ops, writer, global_step):
     feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: False}
     acc, cost, summeries = sess.run(fetches, feed_dict)
     writer.add_summary(summeries, global_step=global_step)
-
-
