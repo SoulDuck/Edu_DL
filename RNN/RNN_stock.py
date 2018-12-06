@@ -3,8 +3,6 @@ This script shows how to predict stock prices using a basic RNN
 '''
 import tensorflow as tf
 import numpy as np
-import matplotlib
-import os
 
 tf.set_random_seed(777)  # reproducibility
 
@@ -58,6 +56,8 @@ test_set = xy[train_size - seq_length:]  # Index from [train_size - seq_length] 
 train_set = MinMaxScaler(train_set)
 test_set = MinMaxScaler(test_set)
 
+hidden_dim = 7
+output_dim = 1
 # build datasets
 def build_dataset(time_series, seq_length):
     dataX = []

@@ -69,7 +69,7 @@ class TestTFAlexnet(unittest.TestCase):
 
         # bias check
         output = int(test_bias.get_shape()[-1])
-        self.assertIs(output, n_out_units)
+        self.assertIs(output, int(n_out_units))
         tf.reset_default_graph()
 
     def test_conv(self):
@@ -132,12 +132,14 @@ class TestTFAlexnet(unittest.TestCase):
 
         # Create session
         # Add train_op to ops
-        sess, saver, writer = tf_alexnet.create_session('alexnet')
+        sess, saver= tf_alexnet.create_session('alexnet')
+        train_writer = tf.summary.FileWriter(logdir='./alexnet_logs/train')
+        train_writer.add_graph(tf.get_default_graph())
+
 
         # Training
-        cost = tf_alexnet.training(sess, 1, self.val_imgs[:60], self.val_labs[:60], ops=ops)
-        self.assertIsInstance(cost, list)
-
+        g_step = tf_alexnet.training(sess, self.val_imgs[:60], self.val_labs[:60], ops, train_writer, 1, 10)
+        g_step = tf_alexnet.training(sess, self.val_imgs[:60], self.val_labs[:60], ops, train_writer, g_step, 10)
         # Reset tensorflow graph
         tf.reset_default_graph()
 
@@ -152,12 +154,14 @@ class TestTFAlexnet(unittest.TestCase):
 
         # add train_op to ops
         # create session
-        sess, saver, writer = tf_alexnet.create_session('alexnet')
+        sess, saver = tf_alexnet.create_session('alexnet')
+        test_writer = tf.summary.FileWriter(logdir='./alexnet_logs/test')
+        test_writer.add_graph(tf.get_default_graph())
 
         # training
-        acc, cost = tf_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops)
-        self.assertIsInstance(acc, float)
-        self.assertIsInstance(cost, float)
+        tf_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops, writer= test_writer, global_step=0)
+        tf_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops, writer=test_writer, global_step=100)
+        tf_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops, writer=test_writer, global_step=200)
         #
         tf.reset_default_graph()
 

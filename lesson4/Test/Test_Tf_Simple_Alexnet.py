@@ -41,6 +41,7 @@ class TestTFSimpleAlexnet(unittest.TestCase):
         """
 
         # kernel
+        tf.reset_default_graph()
         kernel = np.zeros(shape=(7, 7, 1, 2), dtype=np.float32)
         kernel[:, 3, 0, 0] = 1
         kernel[3, :, 0, 1] = 1
@@ -71,6 +72,7 @@ class TestTFSimpleAlexnet(unittest.TestCase):
         """
 
         # kernel
+        tf.reset_default_graph()
         kernel = np.zeros(shape=(7, 7, 1, 2), dtype=np.float32)
         kernel[:, 3, 0, 0] = 1
         kernel[3, :, 0, 1] = 1
@@ -104,6 +106,7 @@ class TestTFSimpleAlexnet(unittest.TestCase):
         :return: 
         """
         # Mock Up data
+        tf.reset_default_graph()
         logits = [[0.05, 0.9, 0.05],
                   [0.05, 0.9, 0.05],
                   [0.05, 0.9, 0.05],
@@ -126,42 +129,42 @@ class TestTFSimpleAlexnet(unittest.TestCase):
         알렉스넷이 잘 구성되었는지 학인합니다.
         :return:
         """
-        tf_simple_alexnet.alexnet((None, 224, 224, 3), n_classes=120)
         tf.reset_default_graph()
+        tf_simple_alexnet.alexnet((None, 224, 224, 3), n_classes=120)
 
     def test_compile_sgd(self):
         """
         GradientDescent 잘 작동하는지 확인합니다
         :return:
         """
+        tf.reset_default_graph()
         ops = tf_simple_alexnet.alexnet((None, 224, 224, 3), n_classes=120)
         tf_simple_alexnet.compile('sgd', ops, learning_rate=0.01)
-        tf.reset_default_graph()
 
     def test_compile_momentum(self):
+        tf.reset_default_graph()
         ops = tf_simple_alexnet.alexnet((None, 224, 224, 3), n_classes=120)
         tf_simple_alexnet.compile('momentum', ops, learning_rate=0.01)
-        tf.reset_default_graph()
 
     def test_compile_rmsprop(self):
+        tf.reset_default_graph()
         ops = tf_simple_alexnet.alexnet((None, 224, 224, 3), n_classes=120)
         tf_simple_alexnet.compile('rmsprop', ops, learning_rate=0.01)
-        tf.reset_default_graph()
 
     def test_compile_adadelta(self):
+        tf.reset_default_graph()
         ops = tf_simple_alexnet.alexnet((None, 224, 224, 3), n_classes=120)
         tf_simple_alexnet.compile('adadelta', ops, learning_rate=0.01)
-        tf.reset_default_graph()
 
     def test_compile_adagrad(self):
+        tf.reset_default_graph()
         ops = tf_simple_alexnet.alexnet((None, 224, 224, 3), n_classes=120)
         tf_simple_alexnet.compile('adagrad', ops, learning_rate=0.01)
-        tf.reset_default_graph()
 
     def test_compile_adam(self):
+        tf.reset_default_graph()
         ops = tf_simple_alexnet.alexnet((None, 224, 224, 3), n_classes=120)
         tf_simple_alexnet.compile('adam', ops, learning_rate=0.01)
-        tf.reset_default_graph()
 
     def test_create_session(self):
         """
@@ -184,10 +187,10 @@ class TestTFSimpleAlexnet(unittest.TestCase):
 
         # Create session
         # Add train_op to ops
-        sess, saver, writer = tf_simple_alexnet.create_session('alexnet')
+        sess = tf_simple_alexnet.create_session('alexnet')
 
         # Training
-        cost = tf_simple_alexnet.training(sess, 1, self.val_imgs[:60], self.val_labs[:60], ops=ops)
+        cost = tf_simple_alexnet.training(sess, 3, self.val_imgs[:60], self.val_labs[:60],30 ,ops=ops)
         self.assertIsInstance(cost, list)
 
         # Reset tensorflow graph
@@ -202,7 +205,7 @@ class TestTFSimpleAlexnet(unittest.TestCase):
 
         # add train_op to ops
         # create session
-        sess, saver, writer = tf_simple_alexnet.create_session('alexnet')
+        sess = tf_simple_alexnet.create_session('alexnet')
 
         # training
         acc, cost = tf_simple_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops)
