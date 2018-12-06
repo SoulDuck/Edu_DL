@@ -1,10 +1,11 @@
 import tensorflow as tf
 import os
 
+
 def alexnet(input_shape, n_classes):
     """
 
-    :param input_shape MUST be 4 dimension tensor | E.g) [None, 224,224,3]:
+    :param input_shape: MUST be 4 dimension tensor | E.g) [None, 224,224,3]:
     :param n_classes:
     :return:
     """
@@ -12,32 +13,36 @@ def alexnet(input_shape, n_classes):
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
     phase_train = tf.placeholder(dtype=tf.bool)
-    in_ch = input_shape[-1]
 
     # Convolution Initializer
     he_init = tf.initializers.variance_scaling(scale=2)
 
     # layer1
-    with tf.variable_scope('conv1') as scope:
-        layer = tf.layers.conv2d(x, filters=96, kernel_size=11, strides=4, padding='same', kernel_initializer=he_init,
+    with tf.variable_scope('conv1'):
+        layer = tf.layers.conv2d(x, filters=96, kernel_size=11, strides=4, padding='same',
+                                 kernel_initializer=he_init,
                                  activation=tf.nn.relu, use_bias=True)
         layer = tf.layers.max_pooling2d(layer, pool_size=3, strides=2,)
-    with tf.variable_scope('conv2') as scope:
-        # layer2
-        layer = tf.layers.conv2d(layer, filters=256, kernel_size=5, strides=1, padding='same', kernel_initializer=he_init,
+    # layer2
+    with tf.variable_scope('conv2'):
+        layer = tf.layers.conv2d(layer, filters=256, kernel_size=5, strides=1, padding='same',
+                                 kernel_initializer=he_init,
                                  activation=tf.nn.relu, use_bias=True)
         layer = tf.layers.max_pooling2d(layer, pool_size=3, strides=2, padding='valid')
-    with tf.variable_scope('conv3') as scope:
-        # layer 3
-        layer = tf.layers.conv2d(layer, filters=384, kernel_size=3, strides=1, padding='same', kernel_initializer=he_init,
+    # layer 3
+    with tf.variable_scope('conv3'):
+        layer = tf.layers.conv2d(layer, filters=384, kernel_size=3, strides=1, padding='same',
+                                 kernel_initializer=he_init,
                                  activation=tf.nn.relu, use_bias=True)
-    with tf.variable_scope('conv4') as scope:
-        # layer 4
-        layer = tf.layers.conv2d(layer, filters=384, kernel_size=3, strides=1, padding='same', kernel_initializer=he_init,
+    # layer 4
+    with tf.variable_scope('conv4'):
+        layer = tf.layers.conv2d(layer, filters=384, kernel_size=3, strides=1, padding='same',
+                                 kernel_initializer=he_init,
                                  activation=tf.nn.relu, use_bias=True)
-    with tf.variable_scope('conv5') as scope:
-        # layer 5
-        layer = tf.layers.conv2d(layer, filters=256, kernel_size=3, strides=1, padding='same', kernel_initializer=he_init,
+    # layer 5
+    with tf.variable_scope('conv5'):
+        layer = tf.layers.conv2d(layer, filters=256, kernel_size=3, strides=1, padding='same',
+                                 kernel_initializer=he_init,
                                  activation=tf.nn.relu, use_bias=True)
 
     # Change node name
@@ -48,15 +53,14 @@ def alexnet(input_shape, n_classes):
 
     # Fully Connected Layer Initializer
     xavier_init = tf.initializers.variance_scaling(scale=1)
-    with tf.variable_scope('fc1') as scope:
+    with tf.variable_scope('fc1'):
         layer = tf.layers.dense(flat_layer, 4096, activation=tf.nn.relu, kernel_initializer=xavier_init, use_bias=True)
 
-    with tf.variable_scope('fc2') as scope:
+    with tf.variable_scope('fc2'):
         layer = tf.layers.dense(layer, 4096, activation=tf.nn.relu, kernel_initializer=xavier_init, use_bias=True)
 
-    with tf.variable_scope('logits') as scope:
+    with tf.variable_scope('logits'):
         logits = tf.layers.dense(layer, n_classes, activation=None, kernel_initializer=xavier_init, use_bias=True)
-
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
@@ -64,7 +68,7 @@ def alexnet(input_shape, n_classes):
 
     # Accuracy
     y_cls = tf.argmax(y, axis=1)
-    correct = tf.nn.in_top_k(logits, y_cls , 1)
+    correct = tf.nn.in_top_k(logits, y_cls, 1)
     acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
 
     # return ops
@@ -105,6 +109,7 @@ def compile(optimizer_name, ops, learning_rate):
 
     return ops
 
+
 def create_session(prefix):
 
     """config Option
@@ -113,7 +118,7 @@ def create_session(prefix):
      config.gpu_options.allow_growth : 처음부터 메모리를 점유하지 말고 필요한 메모리를 점차 증가 시킵니다
     """
 
-    config = tf.ConfigProto(allow_soft_placement=True,log_device_placement=True)
+    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
     config.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
     init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
@@ -128,7 +133,6 @@ def create_session(prefix):
     tf_writer = tf.summary.FileWriter(log_dir)
 
     return sess, saver, tf_writer
-
 
 
 def training(sess, n_step, batch_xs, batch_ys, ops):
@@ -169,4 +173,3 @@ def eval(sess, batch_xs, batch_ys, ops):
     feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: False}
 
     return sess.run(fetches, feed_dict)
-
