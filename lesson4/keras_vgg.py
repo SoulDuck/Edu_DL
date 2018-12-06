@@ -3,21 +3,21 @@ from keras.layers import Input , Dense , Conv2D , MaxPooling2D, Flatten, Dropout
 from keras.optimizers import SGD, RMSprop, Adagrad, Adadelta, Adam, Adamax, Nadam
 
 
-def vgg_block(kernel_sizes, out_chs, strides, x):
+def vgg_block(kernel_list, out_chs, strides_list, x):
     """
     VGG Block 은 아래와 같은 목적으로 설계되었습니다
     - filter size 을 (3,3) 으로 설계해 필터의 크기는 줄이고 ,
     층을 깊게 쌓아 receptive field 는 보전하고 Non-linearity 는 증가시키는 목적입니다
 
-    :param kernel_sizes: list or tuple | E.g) [3, 3, 3, 3]
+    :param kernel_list: list or tuple | E.g) [3, 3, 3, 3]
     :param out_chs: list or tuple | E.g) [256, 256, 256, 256]
-    :param strides: list or tuple | E.g) [1, 1, 1, 1]
+    :param strides_list: list or tuple | E.g) [1, 1, 1, 1]
     :param x: tensor |
     :return:
     """
 
     layer = x
-    ksizes_outchs_strides = zip(kernel_sizes, out_chs, strides)
+    ksizes_outchs_strides = zip(kernel_list, out_chs, strides_list)
     for k, ch, s in ksizes_outchs_strides:
         layer = Conv2D(ch, (k, k), strides=(s, s), padding='same', activation='relu')(layer)
     layer = MaxPooling2D()(layer)
@@ -54,11 +54,16 @@ def vgg_11(input_shape, n_classes):
     x = Input(shape=input_shape)
 
     # VGG 13 Convnet
-    layer = vgg_block(kernel_sizes=[3], out_chs=[64], strides=[1], x=x)
-    layer = vgg_block(kernel_sizes=[3], out_chs=[128], strides=[1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[256, 256], strides=[1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], x=layer)
+    # block 1
+    layer = vgg_block(kernel_list=[3], out_chs=[64], strides_list=[1], x=x)
+    # block 2
+    layer = vgg_block(kernel_list=[3], out_chs=[128], strides_list=[1], x=layer)
+    # block 3
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[256, 256], strides_list=[1, 1], x=layer)
+    # block 4
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[512, 512], strides_list=[1, 1], x=layer)
+    # block 5
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[512, 512], strides_list=[1, 1], x=layer)
 
     # FC Layers
     pred = fc_block(layer, n_classes)
@@ -86,11 +91,16 @@ def vgg_13(input_shape, n_classes):
     x = Input(shape=input_shape)
 
     # VGG 13 Convnet
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[64, 64], strides=[1, 1], x=x)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[128, 128], strides=[1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[256, 256], strides=[1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[512, 512], strides=[1, 1], x=layer)
+    # block 1
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[64, 64], strides_list=[1, 1], x=x)
+    # block 2
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[128, 128], strides_list=[1, 1], x=layer)
+    # block 3
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[256, 256], strides_list=[1, 1], x=layer)
+    # block 4
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[512, 512], strides_list=[1, 1], x=layer)
+    # block 5
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[512, 512], strides_list=[1, 1], x=layer)
 
     # FC Layers
     pred = fc_block(layer, n_classes)
@@ -108,7 +118,6 @@ def vgg_16(input_shape, n_classes):
     """
     Usage :
     >>> vgg_16(shape=(224,224,3) , n_classes=120)
-
     :param input_shape: tuple or list | E.g) (224,224,3)
     :param n_classes: int | E.g) 120
     :return: keras model
@@ -118,11 +127,11 @@ def vgg_16(input_shape, n_classes):
     x = Input(shape=input_shape)
 
     # Feature Extractor
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[64, 64], strides=[1, 1], x=x)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[128, 128], strides=[1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3], out_chs=[256, 256, 256], strides=[1, 1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3], out_chs=[512, 512, 512], strides=[1, 1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3], out_chs=[512, 512, 512], strides=[1, 1, 1], x=layer)
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[64, 64], strides_list=[1, 1], x=x)
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[128, 128], strides_list=[1, 1], x=layer)
+    layer = vgg_block(kernel_list=[3, 3, 3], out_chs=[256, 256, 256], strides_list=[1, 1, 1], x=layer)
+    layer = vgg_block(kernel_list=[3, 3, 3], out_chs=[512, 512, 512], strides_list=[1, 1, 1], x=layer)
+    layer = vgg_block(kernel_list=[3, 3, 3], out_chs=[512, 512, 512], strides_list=[1, 1, 1], x=layer)
 
     # FC Layers
     pred = fc_block(layer, n_classes)
@@ -140,7 +149,6 @@ def vgg_19(input_shape, n_classes):
     """
     Usage :
     >>> vgg_19(shape=(224,224,3) , n_classes=120)
-
     :param input_shape: tuple or list | E.g) (224,224,3)
     :param n_classes: int | E.g) 120
     :return: keras model
@@ -150,11 +158,11 @@ def vgg_19(input_shape, n_classes):
     x = Input(shape=input_shape)
 
     # Feature Extractor
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[64, 64], strides=[1, 1], x=x)
-    layer = vgg_block(kernel_sizes=[3, 3], out_chs=[128, 128], strides=[1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3, 3], out_chs=[256, 256, 256, 256], strides=[1, 1, 1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3, 3], out_chs=[512, 512, 512, 512], strides=[1, 1, 1, 1], x=layer)
-    layer = vgg_block(kernel_sizes=[3, 3, 3, 3], out_chs=[512, 512, 512, 512], strides=[1, 1, 1, 1], x=layer)
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[64, 64], strides_list=[1, 1], x=x)
+    layer = vgg_block(kernel_list=[3, 3], out_chs=[128, 128], strides_list=[1, 1], x=layer)
+    layer = vgg_block(kernel_list=[3, 3, 3, 3], out_chs=[256, 256, 256, 256], strides_list=[1, 1, 1, 1], x=layer)
+    layer = vgg_block(kernel_list=[3, 3, 3, 3], out_chs=[512, 512, 512, 512], strides_list=[1, 1, 1, 1], x=layer)
+    layer = vgg_block(kernel_list=[3, 3, 3, 3], out_chs=[512, 512, 512, 512], strides_list=[1, 1, 1, 1], x=layer)
 
     # FC Layers
     pred = fc_block(layer, n_classes)
