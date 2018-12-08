@@ -108,6 +108,7 @@ def summarize_directory(dataset_dir):
 class DogExtractor(object):
     """
     스탠포드 데이터셋 dog bread classification의 데이터를 extract하는 메소드
+
     Example
     >>> dex = DogExtractor("./data")
     >>> image, label = dex[0] # indexing by integer
@@ -130,6 +131,7 @@ class DogExtractor(object):
         :param data_dir: dog bread classification이 담겨 있는 directory, 없으면 이 경로로 다운받음
         :param image_shape: 출력받을 이미지의 크기
         :param keep_aspect_ratio: 이미지의 비율을 고정시키는가 유무 (True이면, padding을 넣어서 image_shape로 resize함)
+
         """
         self.image_shape = image_shape
         self.keep_aspect_ratio = keep_aspect_ratio
@@ -140,6 +142,8 @@ class DogExtractor(object):
         self.info_df = pd.read_csv(info_path)
         self.info_df.label = self.info_df.label.astype('category')
         self.n_classes = len(self.info_df.label.cat.categories)
+        self.n_samples = len(self.info_df)
+
 
         def code2onehot(code):
             onehot = np.zeros(self.n_classes)
@@ -227,5 +231,3 @@ class DogExtractor(object):
             return self.label2onehot[labels]
         else:
             return np.stack([self.label2onehot[label] for label in labels])
-
-

@@ -1,5 +1,6 @@
 from keras.utils import Sequence
 import numpy as np
+import random
 
 
 class DogDataGenerator(Sequence):
@@ -63,4 +64,20 @@ class DogDataGenerator(Sequence):
         self.indexes = np.arange(len(self.extractor_indexes))
         if self.shuffle:
             np.random.shuffle(self.indexes)
+
+    def random_next_batch(self, batch_size, onehot=True):
+        """
+        batch size 을 주면 random으로 해당 batch size 만큼의 images, labels을 넘겨 줍니다.
+
+        :return:
+        """
+        indices = random.sample(range(len(self.extractor_indexes)),  batch_size)
+        batch_xs , batch_ys= self.extractor[indices]
+        batch_xs = self.pipeline.transform(batch_xs)
+
+        if onehot:
+            batch_ys = map(lambda y : self.extractor.label2onehot[y], batch_ys)
+            batch_ys = list(batch_ys)
+
+        return batch_xs ,batch_ys
 

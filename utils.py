@@ -20,7 +20,7 @@ def plot_images(images, labels=None, save_path=None):
     if not save_path is None:
         plt.savefig(save_path)
     plt.show()
-
+    plt.close()
 
 def show_progress(step , max_step):
     msg = '\r {}/{}'.format(step, max_step)
