@@ -71,7 +71,7 @@ class DogDataGenerator(Sequence):
 
         :return:
         """
-        indices = random.sample(range(len(self.extractor_indexes)),  batch_size)
+        indices = random.sample(list(self.extractor_indexes),  batch_size)
         batch_xs , batch_ys= self.extractor[indices]
         batch_xs = self.pipeline.transform(batch_xs)
 
