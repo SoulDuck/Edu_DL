@@ -261,7 +261,7 @@ def resnet_18(input_shape, n_classes):
     top_conv = tf.identity(layer, 'top_conv')
 
     # Global Average Pooling
-    h,w=top_conv.get_shape()[1:3]
+    h, w = top_conv.get_shape()[1:3]
     gap_layer = tf.layers.average_pooling2d(top_conv, pool_size=(h, w), strides=(1, 1))
 
     # Flatten layer
@@ -287,8 +287,6 @@ def resnet_18(input_shape, n_classes):
 
 
 def resnet_34(input_shape, n_classes):
-
-
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
     phase_train = tf.placeholder(dtype=tf.bool)
@@ -319,7 +317,7 @@ def resnet_34(input_shape, n_classes):
     top_conv = tf.identity(layer, 'top_conv')
 
     # Global Average Pooling
-    h,w=top_conv.get_shape()[1:3]
+    h, w = top_conv.get_shape()[1:3]
     gap_layer = tf.layers.average_pooling2d(top_conv, pool_size=(h, w), strides=(1, 1))
 
     # Flatten layer
@@ -377,7 +375,7 @@ def resnet_50(input_shape, n_classes):
     top_conv = tf.identity(layer, 'top_conv')
 
     # Global Average Pooling
-    h,w=top_conv.get_shape()[1:3]
+    h, w = top_conv.get_shape()[1:3]
     gap_layer = tf.layers.average_pooling2d(top_conv, pool_size=(h, w), strides=(1, 1))
 
     # Flatten layer
@@ -435,7 +433,7 @@ def resnet_101(input_shape, n_classes):
     top_conv = tf.identity(layer, 'top_conv')
 
     # Global Average Pooling
-    h,w=top_conv.get_shape()[1:3]
+    h, w = top_conv.get_shape()[1:3]
     gap_layer = tf.layers.average_pooling2d(top_conv, pool_size=(h, w), strides=(1, 1))
 
     # Flatten layer
@@ -492,7 +490,7 @@ def resnet_152(input_shape, n_classes):
     top_conv = tf.identity(layer, 'top_conv')
 
     # Global Average Pooling
-    h,w=top_conv.get_shape()[1:3]
+    h, w = top_conv.get_shape()[1:3]
     gap_layer = tf.layers.average_pooling2d(top_conv, pool_size=(h, w), strides=(1, 1))
 
     # Flatten layer

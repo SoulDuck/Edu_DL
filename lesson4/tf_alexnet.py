@@ -1,7 +1,6 @@
 import tensorflow as tf
 import os
 
-
 # Conv Feature Extractor
 def variable_summaries(name, var):
     """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
@@ -205,13 +204,13 @@ def create_session(prefix):
     return sess, saver
 
 
-def training(sess, batch_xs, batch_ys, ops, writer, global_step, n_iter):
+def training(sess, loader, batch_size, ops, writer, global_step, n_iter):
     """
     Usage :
     >>> training(sess, batch_xs, batch_ys, ops, writer, global_step, n_iter)
     :param sess: tf.Session
-    :param batch_xs: xs | E.g)
-    :param batch_ys: ys | E.g)
+    :param loader :  Class
+    :param batch_size : Int , E.g) 64
     :param ops: tensor operations | E.g)
     :param writer: tf.Summary.Writer
     :param global_step: int | 1000
@@ -219,8 +218,9 @@ def training(sess, batch_xs, batch_ys, ops, writer, global_step, n_iter):
 
     :return: cost values
     """
-
+    step = 0
     for step in range(global_step, global_step + n_iter):
+        batch_xs , batch_ys = loader.random_next_batch(batch_size, onehot=True)
         fetches = [ops['train_op'], ops['cost_op'], ops['summaries_op']]
         feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: True}
         _, cost, summeries = sess.run(fetches, feed_dict)

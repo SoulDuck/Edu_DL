@@ -7,6 +7,13 @@ import tensorflow as tf
 import tf_alexnet
 from PIL import Image
 import numpy as np
+import extract
+from sklearn.pipeline import Pipeline
+from load import DogDataGenerator
+from sklearn.model_selection import StratifiedShuffleSplit
+from transform import (Normalization, RandomFlip,
+                       RandomRescaleAndCrop, RandomRotation,
+                       RandomColorShift)
 
 
 class TestTFAlexnet(unittest.TestCase):
@@ -31,9 +38,35 @@ class TestTFAlexnet(unittest.TestCase):
             tmp_list.append(img)
             self.assertListEqual(list(np.shape(img)), [224, 224, 3])
 
+
         # Change list to Numpy
         self.val_imgs = np.asarray(tmp_list)
         self.assertListEqual(list(np.shape(self.val_imgs)), [5000, 224, 224, 3])
+
+        # Dog Breed dataset
+        # Setting extractor
+        # Mock up (12 classes, 2848 dataset )
+        self.dex = extract.DogExtractor('../data/dog_breed')
+
+        # Setting Pipeline
+        randomflip = RandomFlip()
+        randomrescale = RandomRescaleAndCrop(max_ratio=1.3)
+        randomrotation = RandomRotation(max_degree=30)
+        randomshift = RandomColorShift(max_shift=20)
+        normalization = Normalization()  # 0~255 -> 0~1로 정규화
+
+        self.train_pipeline = Pipeline([
+            ("랜덤으로 좌우 반전", randomflip),
+            ("랜덤으로 rescale 후 crop", randomrescale),
+            ("랜덤으로 rotation", randomrotation),
+            ("랜덤으로 RGB color의 값을 shift", randomshift),
+            ('0~1 범위로 정규화', normalization)
+        ])
+
+        # Splite Dataset Validation Datset
+        split = StratifiedShuffleSplit(n_splits=1, test_size=0.3)
+        self.train_index, self.test_index = next(split.split(self.dex.index, self.dex.labels))
+
 
     def test_generate_filter(self):
         """

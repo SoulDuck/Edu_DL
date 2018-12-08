@@ -360,7 +360,7 @@ def compile(optimizer_name, ops, learning_rate):
     return ops
 
 
-def create_session(prefix):
+def create_session():
 
     """config Option
      allow_soft_placement :  if cannot put a node in a gpu , put node to in a cpu
@@ -368,7 +368,7 @@ def create_session(prefix):
      config.gpu_options.allow_growth : 처음부터 메모리를 점유하지 말고 필요한 메모리를 점차 증가 시킵니다
     """
 
-    config = tf.ConfigProto(allow_soft_placement=True,log_device_placement=True)
+    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
     config.gpu_options.allow_growth = True
     sess = tf.Session(config=config)
     init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
@@ -395,7 +395,9 @@ def training(sess, n_step, train_images, train_labels, batch_size, ops):
     :param train_images: Numpy | E.g)
     :param train_labels: Numpy | E.g)
     :param ops: tensor operations | E.g)
+    :param batch_size int | E.g) 64
     :return: cost values
+
     """
 
     cost_values = []

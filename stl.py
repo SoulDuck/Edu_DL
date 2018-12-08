@@ -1,5 +1,0 @@
-from urllib import request
-
-"""
-
-"""
