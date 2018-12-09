@@ -182,7 +182,7 @@ def compile(optimizer_name, ops, learning_rate):
     return ops
 
 
-def create_session(prefix):
+def create_session():
 
     """config Option
      allow_soft_placement :  if cannot put a node in a gpu , put node to in a cpu
@@ -195,13 +195,29 @@ def create_session(prefix):
     sess = tf.Session(config=config)
     init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
     sess.run(init)
+    return sess
 
+
+def create_saver(prefix):
+    """
+
+    :param prefix: str | E.g) : 'Alexnet'
+    :return:
+    """
     model_dir = './{}_models'.format(prefix)
     if not os.path.isdir(model_dir):
         os.makedirs(model_dir)
-    saver = tf.train.Saver()
+    return tf.train.Saver()
 
-    return sess, saver
+
+def create_logger(prefix):
+    """
+
+    :param prefix: str | E.g) : 'Alexnet'
+    :return:
+    """
+    log_dir = './{}_models'.format(prefix)
+    return tf.summary.FileWriter(log_dir, graph=tf.get_default_graph())
 
 
 def training(sess, loader, batch_size, ops, writer, global_step, n_iter):
