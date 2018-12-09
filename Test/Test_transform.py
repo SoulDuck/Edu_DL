@@ -1,5 +1,6 @@
 import unittest
 import sys
+import numpy as np
 sys.path.append('../')
 from sklearn.pipeline import Pipeline
 from load import DogDataGenerator
@@ -33,8 +34,6 @@ class TestTransform(unittest.TestCase):
 
     def test_init(self):
         gen = DogDataGenerator(self.dex, self.train_index, self.train_pipeline, batch_size=16)
-        batch_images, batch_labels = gen[0]
-
     def test_len(self):
         pass;
     def tearDown(self):
