@@ -243,7 +243,7 @@ def training(sess, loader, ops, writer, global_step, n_iter):
         writer.add_summary(summeries, step)
 
         # Progress Bar
-        sys.stdout.write('\r {}/{}: acc : {} , cost : {}'.format(step, global_step + n_iter, acc, cost))
+        sys.stdout.write('\rProgress : {}/{}\tacc : {}\tcost : {}'.format(step, global_step + n_iter, acc, cost))
         sys.stdout.flush()
     return step
 
