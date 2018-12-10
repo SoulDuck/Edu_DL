@@ -1,6 +1,6 @@
 import tensorflow as tf
 import os
-
+import sys
 
 # Conv Feature Extractor
 def variable_summaries(name, var):
@@ -236,6 +236,8 @@ def training(sess, loader, ops, writer, global_step, n_iter):
 
     step = 0
     for step in range(global_step, global_step + n_iter):
+        sys.stdout.write('\r {} {}'.format(global_step, global_step + n_iter))
+        sys.stdout.flush()
         batch_xs , batch_ys = loader.random_next_batch(onehot=True)
         fetches = [ops['train_op'], ops['cost_op'], ops['summaries_op']]
         feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: True}
