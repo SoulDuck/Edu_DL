@@ -236,13 +236,15 @@ def training(sess, loader, ops, writer, global_step, n_iter):
 
     step = 0
     for step in range(global_step, global_step + n_iter):
-        sys.stdout.write('\r {} {}'.format(global_step, global_step + n_iter))
-        sys.stdout.flush()
         batch_xs , batch_ys = loader.random_next_batch(onehot=True)
-        fetches = [ops['train_op'], ops['cost_op'], ops['summaries_op']]
+        fetches = [ops['train_op'], ops['cost_op'], ops['acc_op'], ops['summaries_op']]
         feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: True}
-        _, cost, summeries = sess.run(fetches, feed_dict)
+        _, cost, acc, summeries = sess.run(fetches, feed_dict)
         writer.add_summary(summeries, step)
+
+        # Progress Bar
+        sys.stdout.write('\r {}/{}: acc : {} , cost : {}'.format(step, global_step + n_iter, acc, cost))
+        sys.stdout.flush()
     return step
 
 
