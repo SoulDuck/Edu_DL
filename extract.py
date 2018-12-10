@@ -144,7 +144,6 @@ class DogExtractor(object):
         self.n_classes = len(self.info_df.label.cat.categories)
         self.n_samples = len(self.info_df)
 
-
         def code2onehot(code):
             onehot = np.zeros(self.n_classes)
             onehot[code] = 1.
@@ -152,6 +151,7 @@ class DogExtractor(object):
 
         self.label2onehot = {label_name : code2onehot(code)
                              for code, label_name in enumerate(self.info_df.label.cat.categories)}
+        self.label2code = {label_name : code for code, label_name in enumerate(self.info_df.label.cat.categories)}
 
     def __len__(self):
         return len(self.info_df)
@@ -178,6 +178,8 @@ class DogExtractor(object):
             return self._view_by_dataframe(self.info_df.loc[slc])
         elif isinstance(slc, tuple):
             return self._view_by_dataframe(self.info_df.loc[list(slc)])
+        elif isinstance(slc, np.ndarray):
+            return self._view_by_dataframe(self.info_df.loc[slc])
         else:
             raise ValueError("적절치 못한 indexing입니다.")
 
@@ -231,3 +233,9 @@ class DogExtractor(object):
             return self.label2onehot[labels]
         else:
             return np.stack([self.label2onehot[label] for label in labels])
+
+    def convert_to_code(self, labels):
+        if isinstance(labels, str):
+            return self.label2code[labels]
+        else:
+            return np.stack([self.label2code[label] for label in labels])
