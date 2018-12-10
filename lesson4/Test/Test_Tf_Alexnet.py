@@ -5,6 +5,7 @@ import unittest
 import cifar
 import tensorflow as tf
 import tf_alexnet
+import os
 from PIL import Image
 import numpy as np
 import extract
@@ -67,6 +68,8 @@ class TestTFAlexnet(unittest.TestCase):
         split = StratifiedShuffleSplit(n_splits=1, test_size=0.3)
         self.train_index, self.test_index = next(split.split(self.dex.index, self.dex.labels))
 
+        # Loader
+        self.loader = DogDataGenerator(self.dex , self.train_index , self.train_pipeline, batch_size=64)
 
     def test_generate_filter(self):
         """
@@ -149,6 +152,47 @@ class TestTFAlexnet(unittest.TestCase):
         tf_alexnet.compile('adam', ops, learning_rate=0.01)
         tf.reset_default_graph()
 
+    def test_create_saver(self):
+        """
+        saver 파일이 잘 작동하나 확인합니다
+         - 폴더생성 확인
+         - 변수 저장 후 복원 확인
+        :return:
+
+        """
+        init = tf.constant(1,shape=[2,3], name='var1')
+        var = tf.Variable(init)
+        sess = tf.Session()
+        init = tf.global_variables_initializer()
+        sess.run(init)
+        src_var = sess.run(var)
+
+        saver_dir= './tmp_dir/saver'
+        saver_name = 'tmp_model'
+        saver_path = os.path.join(saver_dir , saver_name)
+
+
+        # 폴더 생성 확인
+        saver = tf_alexnet.create_saver(saver_dir)
+        self.assertIs(os.path.isdir(saver_dir) ,True)
+
+        # 변수 저장
+        saver.save(sess, save_path = saver_path)
+
+        # 변수 저장 확인
+        tf.reset_default_graph()
+        new_saver = tf.train.import_meta_graph(os.path.join(saver_path+'.meta'))
+        var = tf.get_default_graph().get_tensor_by_name('var1:0')
+        new_saver.restore(sess, saver_path)
+        sess = tf.Session()
+        sess.run(tf.global_variables_initializer())
+        dst_var = sess.run(var)
+
+        self.assertListEqual(list(np.shape(src_var)), list(np.shape(dst_var)))
+        self.assertEqual(np.sum(src_var), 6)
+        self.assertEqual(np.sum(dst_var), 6)
+        os.remove(saver_dir)
+
     def test_create_session(self):
         """
         Session 과 Variable Initalization 이 잘되는지 확인합니다.
@@ -156,25 +200,33 @@ class TestTFAlexnet(unittest.TestCase):
         """
         ops = tf_alexnet.alexnet((None, 224, 224, 3), n_classes=120)
         tf_alexnet.compile('adagrad', ops, learning_rate=0.01)
-        tf_alexnet.create_session('alexnet')
+        tf_alexnet.create_session()
         tf.reset_default_graph()
 
     def test_training(self):
-        ops = tf_alexnet.alexnet((None, 224, 224, 3), n_classes=10)
+        """
+        트레이닝이 잘 되는지 확인합니다.
+
+        :return:
+        """
+        ops = tf_alexnet.alexnet((None, 224, 224, 3), n_classes=120)
         ops = tf_alexnet.compile('adagrad', ops, learning_rate=0.01)
 
         # Create session
         # Add train_op to ops
-        sess, saver= tf_alexnet.create_session('alexnet')
-        train_writer = tf.summary.FileWriter(logdir='./alexnet_logs/train')
-        train_writer.add_graph(tf.get_default_graph())
+        sess = tf_alexnet.create_session()
 
+        # Create Logger
+        logger_dir= './tmp_dir/logger'
+        logger = tf_alexnet.create_logger(logger_dir)
 
         # Training
-        g_step = tf_alexnet.training(sess, self.val_imgs[:60], self.val_labs[:60], ops, train_writer, 1, 10)
-        g_step = tf_alexnet.training(sess, self.val_imgs[:60], self.val_labs[:60], ops, train_writer, g_step, 10)
+        g_step = tf_alexnet.training(sess, self.loader, ops, logger , global_step = 1, n_iter = 10)
+        g_step = tf_alexnet.training(sess, self.loader, ops, logger , global_step = g_step, n_iter = 10)
+
         # Reset tensorflow graph
         tf.reset_default_graph()
+        os.remove(logger_dir)
 
     def test_eval(self):
         """
@@ -185,16 +237,25 @@ class TestTFAlexnet(unittest.TestCase):
         ops = tf_alexnet.alexnet((None, 224, 224, 3), n_classes=10)
         ops = tf_alexnet.compile('adagrad', ops, learning_rate=0.01)
 
-        # add train_op to ops
-        # create session
-        sess, saver = tf_alexnet.create_session('alexnet')
-        test_writer = tf.summary.FileWriter(logdir='./alexnet_logs/test')
-        test_writer.add_graph(tf.get_default_graph())
+        # Create Session
+        # Add train_op to ops
+        sess = tf_alexnet.create_session()
+
+        # Create Logger
+        logger_dir= './tmp_dir/logger'
+        logger = tf_alexnet.create_logger(logger_dir)
+
+        # Create Saver
+        saver_dir = './tmp_dir/saver'
+        saver = tf_alexnet.create_saver(saver_dir)
 
         # training
-        tf_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops, writer= test_writer, global_step=0)
-        tf_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops, writer=test_writer, global_step=100)
-        tf_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops, writer=test_writer, global_step=200)
+        tf_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops, logger=logger, saver=saver,
+                        global_step=0)
+        tf_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops, logger=logger, saver=saver,
+                        global_step=100)
+        tf_alexnet.eval(sess, self.val_imgs[:60], self.val_labs[:60], ops=ops, logger=logger, saver=saver,
+                        global_step=200)
         #
         tf.reset_default_graph()
 

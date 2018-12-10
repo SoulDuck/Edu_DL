@@ -1,6 +1,7 @@
 import tensorflow as tf
 import os
 
+
 # Conv Feature Extractor
 def variable_summaries(name, var):
     """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
@@ -198,35 +199,33 @@ def create_session():
     return sess
 
 
-def create_saver(prefix):
+def create_saver(model_dir, max_to_keep = 10):
     """
 
-    :param prefix: str | E.g) : 'Alexnet'
+    :param model_dir: str | E.g) : 'Alexnet'
+    :param max_to_keep : int | E.g) : 10
     :return:
     """
-    model_dir = './{}_models'.format(prefix)
     if not os.path.isdir(model_dir):
         os.makedirs(model_dir)
-    return tf.train.Saver()
+    return tf.train.Saver(max_to_keep=max_to_keep)
 
 
-def create_logger(prefix):
+def create_logger(log_dir):
     """
 
-    :param prefix: str | E.g) : 'Alexnet'
+    :param log_dir: str | E.g) : 'Alexnet'
     :return:
     """
-    log_dir = './{}_models'.format(prefix)
     return tf.summary.FileWriter(log_dir, graph=tf.get_default_graph())
 
 
-def training(sess, loader, batch_size, ops, writer, global_step, n_iter):
+def training(sess, loader, ops, writer, global_step, n_iter):
     """
     Usage :
-    >>> training(sess, batch_xs, batch_ys, ops, writer, global_step, n_iter)
+    >>> training(sess, loader, ops, writer, global_step, n_iter)
     :param sess: tf.Session
     :param loader :  Class
-    :param batch_size : Int , E.g) 64
     :param ops: tensor operations | E.g)
     :param writer: tf.Summary.Writer
     :param global_step: int | 1000
@@ -234,9 +233,10 @@ def training(sess, loader, batch_size, ops, writer, global_step, n_iter):
 
     :return: cost values
     """
+
     step = 0
     for step in range(global_step, global_step + n_iter):
-        batch_xs , batch_ys = loader.random_next_batch(batch_size, onehot=True)
+        batch_xs , batch_ys = loader.random_next_batch(onehot=True)
         fetches = [ops['train_op'], ops['cost_op'], ops['summaries_op']]
         feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: True}
         _, cost, summeries = sess.run(fetches, feed_dict)
@@ -244,15 +244,15 @@ def training(sess, loader, batch_size, ops, writer, global_step, n_iter):
     return step
 
 
-def eval(sess, batch_xs, batch_ys, ops, writer, global_step):
+def eval(sess, batch_xs, batch_ys, ops, logger, global_step, saver=None, saver_name=None):
     """
     Usage :
-    >>> eval(sess, batch_xs, batch_ys, ops)
+    >>> eval(sess, batch_xs, batch_ys, ops, logger , global_step, saver)
     :param sess: tf.Session
     :param batch_xs: xs | E.g)
     :param batch_ys: ys | E.g)
     :param ops: tensor operations | E.g)
-    :param writer: tf.Summary.Writer
+    :param logger: tf.Summary.Writer
     :param global_step: int | 1000
 
     :return: cost values
@@ -261,4 +261,6 @@ def eval(sess, batch_xs, batch_ys, ops, writer, global_step):
     fetches = [ops['acc_op'], ops['cost_op'], ops['summaries_op']]
     feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: False}
     acc, cost, summeries = sess.run(fetches, feed_dict)
-    writer.add_summary(summeries, global_step=global_step)
+    logger.add_summary(summeries, global_step=global_step)
+    if saver:
+        saver.save(saver_name, global_step=global_step)

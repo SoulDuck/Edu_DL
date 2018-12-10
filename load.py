@@ -65,13 +65,13 @@ class DogDataGenerator(Sequence):
         if self.shuffle:
             np.random.shuffle(self.indexes)
 
-    def random_next_batch(self, batch_size, onehot=True):
+    def random_next_batch(self, onehot=True):
         """
         batch size 을 주면 random으로 해당 batch size 만큼의 images, labels을 넘겨 줍니다.
 
         :return:
         """
-        indices = random.sample(list(self.extractor_indexes),  batch_size)
+        indices = random.sample(list(self.extractor_indexes), self.batch_size)
         batch_xs , batch_ys= self.extractor[indices]
         batch_xs = self.pipeline.transform(batch_xs)
 
