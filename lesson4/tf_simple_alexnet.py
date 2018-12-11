@@ -1,5 +1,29 @@
 import tensorflow as tf
 
+
+# Conv Feature Extractor
+def variable_summaries(name, var):
+    """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
+    with tf.name_scope('{}_summaries'.format(name)):
+        mean = tf.reduce_mean(var)
+        tf.summary.scalar('mean', mean)
+        with tf.name_scope('stddev'):
+            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+            tf.summary.scalar('stddev', stddev)
+            tf.summary.scalar('max', tf.reduce_max(var))
+            tf.summary.scalar('min', tf.reduce_min(var))
+            tf.summary.histogram('histogram', var)
+
+
+def ops_summaries(ops):
+    tf.summary.scalar('cost', ops['cost_op'])
+    tf.summary.scalar('accuracy', ops['acc_op'])
+    """
+    if you want add image to tensorboard, uncomment this line 
+    tf.summary.image('input', ops['x'], 16)
+    """
+
+
 def alexnet(input_shape, n_classes):
     """
 
@@ -72,10 +96,14 @@ def alexnet(input_shape, n_classes):
 
     # Accuracy
     # 자동으로 tf.GraphKeys.METRIC tf.GraphKeys.METRIC_VARIABLES 에 추가됨
-    #acc = tf.metrics.accuracy(labels=logits, predictions=y, name='acc_op')
     pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
     tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
 
     # Train op
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
+
+    # Add trainable node to summary
+    trainable_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
+    for var in trainable_var:
+        variable_summaries(var.op.name, var)
