@@ -45,7 +45,7 @@ def alexnet(input_shape, n_classes):
     with tf.variable_scope('conv1'):
         layer = tf.layers.conv2d(x, filters=96, kernel_size=11, strides=4, padding='same',
                                  kernel_initializer=he_init,
-                                 activation=activation , use_bias=True)
+                                 activation=activation, use_bias=True)
         layer = tf.layers.max_pooling2d(layer, pool_size=3, strides=2,)
     # layer2
     with tf.variable_scope('conv2'):
@@ -78,12 +78,12 @@ def alexnet(input_shape, n_classes):
     # Fully Connected Layer Initializer
     with tf.variable_scope('fc1'):
         layer = tf.layers.dense(flat_layer, 4096, kernel_initializer=he_init, use_bias=True)
-        layer = tf.cond(phase_train, lambda: tf.nn.dropout(layer, keep_prob), lambda: layer)
+        layer = tf.layers.dropout(layer,keep_prob)
         layer = activation(layer)
 
     with tf.variable_scope('fc2'):
         layer = tf.layers.dense(layer, 4096, activation=activation, kernel_initializer=he_init, use_bias=True)
-        layer = tf.cond(phase_train, lambda: tf.nn.dropout(layer, keep_prob), lambda: layer)
+        layer = tf.layers.dropout(layer,keep_prob)
         layer = activation(layer)
 
     xavier_init = tf.initializers.variance_scaling(scale=1)

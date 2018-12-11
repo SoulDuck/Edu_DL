@@ -19,20 +19,6 @@ class TestTFSimpleResnet(unittest.TestCase):
         self.val_imgs = cifar10.val_imgs
         self.val_labs = cifar10.val_labs
 
-        # Cast float to int
-        self.val_imgs = np.asarray(self.val_imgs * 255).astype(np.uint8)
-
-        # Resize cifar image 32 to 224
-        tmp_list = []
-        for i in range(len(self.val_imgs)):
-            img = Image.fromarray(self.val_imgs[i]).resize((224, 224), Image.ANTIALIAS)
-            img = np.asarray(img)
-            tmp_list.append(img)
-            self.assertListEqual(list(np.shape(img)), [224, 224, 3])
-
-        self.val_imgs = np.asarray(tmp_list)
-        self.assertListEqual(list(np.shape(self.val_imgs)), [5000, 224, 224, 3])
-
         # kernel
         tf.reset_default_graph()
         self.kernel = np.zeros(shape=(7, 7, 1, 2), dtype=np.float32)
@@ -148,13 +134,78 @@ class TestTFSimpleResnet(unittest.TestCase):
         tf_simple_resnet.residual_block_projection(layer, 64, self.phase_train)
         tf_simple_resnet.create_session()
 
+    def test_batch_norm(self):
+        pass
+
     def test_resnet_18(self):
         """
         resnet 18 graph가 잘 그려지는지 확인합니다
         :return:
         """
         tf.reset_default_graph()
-        tf_simple_resnet.resnet_18([None, 224, 224, 3], 120)
+
+        tf_simple_resnet.resnet_18([None, 32, 32, 3], 10)
+        x = tf.get_default_graph().get_tensor_by_name('x:0')
+        y = tf.get_default_graph().get_tensor_by_name('y:0')
+        phase_train = tf.get_default_graph().get_tensor_by_name('phase_train:0')
+        learning_rate = tf.get_default_graph().get_tensor_by_name('learning_rate:0')
+
+        # Train Filewriter
+        model_name = 'resnet_18'
+        writer = tf.summary.FileWriter('tmp_dir/logs/{}'.format(model_name))
+        writer.add_graph(tf.get_default_graph())
+
+        # Define Operation
+        cost_op = tf.get_default_graph().get_tensor_by_name('cost_op:0')
+        acc_op = tf.get_default_graph().get_tensor_by_name('acc_op:0')
+        # acc_op = tf.get_collection(tf.GraphKeys.METRIC_VARIABLES)[0]
+        train_op = tf.get_collection(tf.GraphKeys.TRAIN_OP)[0]
+        merge_op = tf.summary.merge_all()
+
+        # Create Session
+        sess = tf.Session()
+        sess.run(tf.global_variables_initializer())
+        sess.run(tf.local_variables_initializer())
+        fetches = [train_op, cost_op, acc_op, merge_op]
+        feed_dict = {x: self.train_imgs[:60], y: self.train_labs[:60], phase_train: True, learning_rate: 0.0001}
+
+        # Training
+        for step in range(5):
+            _, cost, acc, summary_merge = sess.run(fetches=fetches, feed_dict=feed_dict)
+            writer.add_summary(summary_merge, global_step=step)
+            print('step : {} cost : {} , acc : {}'.format(step, cost, acc))
+
+        # Validation
+        fetches = [cost_op, acc_op]
+        feed_dict = {x: self.val_imgs[:60], y: self.val_labs[:60], phase_train: False}
+        val_cost, val_acc = sess.run(fetches=fetches, feed_dict=feed_dict)
+
+        # Model save and restore
+        saver = tf.train.Saver()
+        saver.save(sess, './tmp_dir/models/{}/model'.format(model_name))
+
+        # Reset graph
+        tf.reset_default_graph()
+        tf.train.import_meta_graph('./tmp_dir/models/{}/model.meta'.format(model_name))
+        saver = tf.train.Saver()
+        sess = tf.Session()
+        saver.restore(sess, './tmp_dir/models/{}/model'.format(model_name))
+
+        # Restore Node
+        x = tf.get_default_graph().get_tensor_by_name('x:0')
+        y = tf.get_default_graph().get_tensor_by_name('y:0')
+        phase_train = tf.get_default_graph().get_tensor_by_name('phase_train:0')
+        cost_op = tf.get_default_graph().get_tensor_by_name('cost_op:0')
+        acc_op = tf.get_default_graph().get_tensor_by_name('acc_op:0')
+        fetches = [acc_op, cost_op]
+
+        # Run Session
+        feed_dict = {x: self.val_imgs[:60], y: self.val_labs[:60], phase_train: False}
+        restore_acc, restore_cost = sess.run(fetches=fetches, feed_dict=feed_dict)
+
+        # Restore 했을때 Validation 결과값이 동일해야 합니다
+        self.assertEqual(float(restore_acc), float(val_acc))
+        self.assertEqual(float(restore_cost), float(val_cost))
 
     def test_resnet_34(self):
         """
@@ -162,7 +213,68 @@ class TestTFSimpleResnet(unittest.TestCase):
         :return:
         """
         tf.reset_default_graph()
-        tf_simple_resnet.resnet_18([None, 224, 224, 3], 120)
+
+        x = tf.get_default_graph().get_tensor_by_name('x:0')
+        y = tf.get_default_graph().get_tensor_by_name('y:0')
+        phase_train = tf.get_default_graph().get_tensor_by_name('phase_train:0')
+        learning_rate = tf.get_default_graph().get_tensor_by_name('learning_rate:0')
+
+        # Train Filewriter
+        model_name = 'resnet_34'
+        writer = tf.summary.FileWriter('tmp_dir/logs/{}'.format(model_name))
+        writer.add_graph(tf.get_default_graph())
+
+        # Define Operation
+        cost_op = tf.get_default_graph().get_tensor_by_name('cost_op:0')
+        acc_op = tf.get_default_graph().get_tensor_by_name('acc_op:0')
+        # acc_op = tf.get_collection(tf.GraphKeys.METRIC_VARIABLES)[0]
+        train_op = tf.get_collection(tf.GraphKeys.TRAIN_OP)[0]
+        merge_op = tf.summary.merge_all()
+
+        # Create Session
+        sess = tf.Session()
+        sess.run(tf.global_variables_initializer())
+        sess.run(tf.local_variables_initializer())
+        fetches = [train_op, cost_op, acc_op, merge_op]
+        feed_dict = {x: self.train_imgs[:60], y: self.train_labs[:60], phase_train: True, learning_rate: 0.0001}
+
+        # Training
+        for step in range(5):
+            _, cost, acc, summary_merge = sess.run(fetches=fetches, feed_dict=feed_dict)
+            writer.add_summary(summary_merge, global_step=step)
+            print('step : {} cost : {} , acc : {}'.format(step, cost, acc))
+
+        # Validation
+        fetches = [cost_op, acc_op]
+        feed_dict = {x: self.val_imgs[:60], y: self.val_labs[:60], phase_train: False}
+        val_cost, val_acc = sess.run(fetches=fetches, feed_dict=feed_dict)
+
+        # Model save and restore
+        saver = tf.train.Saver()
+        saver.save(sess, './tmp_dir/models/{}/model'.format(model_name))
+
+        # Reset graph
+        tf.reset_default_graph()
+        tf.train.import_meta_graph('./tmp_dir/models/{}/model.meta'.format(model_name))
+        saver = tf.train.Saver()
+        sess = tf.Session()
+        saver.restore(sess, './tmp_dir/models/{}/model'.format(model_name))
+
+        # Restore Node
+        x = tf.get_default_graph().get_tensor_by_name('x:0')
+        y = tf.get_default_graph().get_tensor_by_name('y:0')
+        phase_train = tf.get_default_graph().get_tensor_by_name('phase_train:0')
+        cost_op = tf.get_default_graph().get_tensor_by_name('cost_op:0')
+        acc_op = tf.get_default_graph().get_tensor_by_name('acc_op:0')
+        fetches = [acc_op, cost_op]
+
+        # Run Session
+        feed_dict = {x: self.val_imgs[:60], y: self.val_labs[:60], phase_train: False}
+        restore_acc, restore_cost = sess.run(fetches=fetches, feed_dict=feed_dict)
+
+        # Restore 했을때 Validation 결과값이 동일해야 합니다
+        self.assertEqual(float(restore_acc), float(val_acc))
+        self.assertEqual(float(restore_cost), float(val_cost))
 
     def test_resnet_50(self):
         """
@@ -170,7 +282,67 @@ class TestTFSimpleResnet(unittest.TestCase):
         :return:
         """
         tf.reset_default_graph()
-        tf_simple_resnet.resnet_18([None, 224, 224, 3], 120)
+        tf_simple_resnet.resnet_50([None, 32, 32, 3], 10)
+        x = tf.get_default_graph().get_tensor_by_name('x:0')
+        y = tf.get_default_graph().get_tensor_by_name('y:0')
+        phase_train = tf.get_default_graph().get_tensor_by_name('phase_train:0')
+        learning_rate = tf.get_default_graph().get_tensor_by_name('learning_rate:0')
+
+        # Train Filewriter
+        model_name = 'resnet_50'
+        writer = tf.summary.FileWriter('tmp_dir/logs/{}'.format(model_name))
+        writer.add_graph(tf.get_default_graph())
+
+        # Define Operation
+        cost_op = tf.get_default_graph().get_tensor_by_name('cost_op:0')
+        acc_op = tf.get_default_graph().get_tensor_by_name('acc_op:0')
+        train_op = tf.get_collection(tf.GraphKeys.TRAIN_OP)[0]
+        merge_op = tf.summary.merge_all()
+
+        # Create Session
+        sess = tf.Session()
+        sess.run(tf.global_variables_initializer())
+        sess.run(tf.local_variables_initializer())
+        fetches = [train_op, cost_op, acc_op, merge_op]
+        feed_dict = {x: self.train_imgs[:60], y: self.train_labs[:60], phase_train: True, learning_rate: 0.0001}
+
+        # Training
+        for step in range(5):
+            _, cost, acc, summary_merge = sess.run(fetches=fetches, feed_dict=feed_dict)
+            writer.add_summary(summary_merge, global_step=step)
+            print('step : {} cost : {} , acc : {}'.format(step, cost, acc))
+
+        # Validation
+        fetches = [cost_op, acc_op]
+        feed_dict = {x: self.val_imgs[:60], y: self.val_labs[:60], phase_train: False}
+        val_cost, val_acc = sess.run(fetches=fetches, feed_dict=feed_dict)
+
+        # Model save and restore
+        saver = tf.train.Saver()
+        saver.save(sess, './tmp_dir/models/{}/model'.format(model_name))
+
+        # Reset graph
+        tf.reset_default_graph()
+        tf.train.import_meta_graph('./tmp_dir/models/{}/model.meta'.format(model_name))
+        saver = tf.train.Saver()
+        sess = tf.Session()
+        saver.restore(sess, './tmp_dir/models/{}/model'.format(model_name))
+
+        # Restore Node
+        x = tf.get_default_graph().get_tensor_by_name('x:0')
+        y = tf.get_default_graph().get_tensor_by_name('y:0')
+        phase_train = tf.get_default_graph().get_tensor_by_name('phase_train:0')
+        cost_op = tf.get_default_graph().get_tensor_by_name('cost_op:0')
+        acc_op = tf.get_default_graph().get_tensor_by_name('acc_op:0')
+        fetches = [acc_op, cost_op]
+
+        # Run Session
+        feed_dict = {x: self.val_imgs[:60], y: self.val_labs[:60], phase_train: False}
+        restore_acc, restore_cost = sess.run(fetches=fetches, feed_dict=feed_dict)
+
+        # Restore 했을때 Validation 결과값이 동일해야 합니다
+        self.assertEqual(float(restore_acc), float(val_acc))
+        self.assertEqual(float(restore_cost), float(val_cost))
 
     def test_resnet_101(self):
         """
@@ -178,7 +350,68 @@ class TestTFSimpleResnet(unittest.TestCase):
         :return:
         """
         tf.reset_default_graph()
-        tf_simple_resnet.resnet_18([None, 224, 224, 3], 120)
+        tf_simple_resnet.resnet_101([None, 32, 32, 3], 10)
+        x = tf.get_default_graph().get_tensor_by_name('x:0')
+        y = tf.get_default_graph().get_tensor_by_name('y:0')
+        phase_train = tf.get_default_graph().get_tensor_by_name('phase_train:0')
+        learning_rate = tf.get_default_graph().get_tensor_by_name('learning_rate:0')
+
+        # Train Filewriter
+        model_name = 'resnet_101'
+        writer = tf.summary.FileWriter('tmp_dir/logs/{}'.format(model_name))
+        writer.add_graph(tf.get_default_graph())
+
+        # Define Operation
+        cost_op = tf.get_default_graph().get_tensor_by_name('cost_op:0')
+        acc_op = tf.get_default_graph().get_tensor_by_name('acc_op:0')
+        # acc_op = tf.get_collection(tf.GraphKeys.METRIC_VARIABLES)[0]
+        train_op = tf.get_collection(tf.GraphKeys.TRAIN_OP)[0]
+        merge_op = tf.summary.merge_all()
+
+        # Create Session
+        sess = tf.Session()
+        sess.run(tf.global_variables_initializer())
+        sess.run(tf.local_variables_initializer())
+        fetches = [train_op, cost_op, acc_op, merge_op]
+        feed_dict = {x: self.train_imgs[:60], y: self.train_labs[:60], phase_train: True, learning_rate: 0.000001}
+
+        # Training
+        for step in range(5):
+            _, cost, acc, summary_merge = sess.run(fetches=fetches, feed_dict=feed_dict)
+            writer.add_summary(summary_merge, global_step=step)
+            print('step : {} cost : {} , acc : {}'.format(step, cost, acc))
+
+        # Validation
+        fetches = [cost_op, acc_op]
+        feed_dict = {x: self.val_imgs[:60], y: self.val_labs[:60], phase_train: False}
+        val_cost, val_acc = sess.run(fetches=fetches, feed_dict=feed_dict)
+
+        # Model save and restore
+        saver = tf.train.Saver()
+        saver.save(sess, './tmp_dir/models/{}/model'.format(model_name))
+
+        # Reset graph
+        tf.reset_default_graph()
+        tf.train.import_meta_graph('./tmp_dir/models/{}/model.meta'.format(model_name))
+        saver = tf.train.Saver()
+        sess = tf.Session()
+        saver.restore(sess, './tmp_dir/models/{}/model'.format(model_name))
+
+        # Restore Node
+        x = tf.get_default_graph().get_tensor_by_name('x:0')
+        y = tf.get_default_graph().get_tensor_by_name('y:0')
+        phase_train = tf.get_default_graph().get_tensor_by_name('phase_train:0')
+        cost_op = tf.get_default_graph().get_tensor_by_name('cost_op:0')
+        acc_op = tf.get_default_graph().get_tensor_by_name('acc_op:0')
+        fetches = [acc_op, cost_op]
+
+        # Run Session
+        feed_dict = {x: self.val_imgs[:60], y: self.val_labs[:60], phase_train: False}
+        restore_acc, restore_cost = sess.run(fetches=fetches, feed_dict=feed_dict)
+
+        # Restore 했을때 Validation 결과값이 동일해야 합니다
+        self.assertEqual(float(restore_acc), float(val_acc))
+        self.assertEqual(float(restore_cost), float(val_cost))
 
     def test_resnet_151(self):
         """
@@ -186,104 +419,66 @@ class TestTFSimpleResnet(unittest.TestCase):
         :return:
         """
         tf.reset_default_graph()
-        tf_simple_resnet.resnet_18([None, 224, 224, 3], 120)
+        tf_simple_resnet.resnet_151([None, 32, 32, 3], 10)
 
-    def test_compile_18(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_18([None, 224, 224, 3], 120)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        tf_simple_resnet.create_session()
+        x = tf.get_default_graph().get_tensor_by_name('x:0')
+        y = tf.get_default_graph().get_tensor_by_name('y:0')
+        phase_train = tf.get_default_graph().get_tensor_by_name('phase_train:0')
+        learning_rate = tf.get_default_graph().get_tensor_by_name('learning_rate:0')
 
-    def test_training_18(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_18([None, 224, 224, 3], 10)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.training(sess, 10, self.val_imgs, self.val_labs, 30, ops)
+        # Train Filewriter
+        model_name = 'resnet_151'
+        writer = tf.summary.FileWriter('tmp_dir/logs/{}'.format(model_name))
+        writer.add_graph(tf.get_default_graph())
 
-    def test_testing_18(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_18([None, 224, 224, 3], 10)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], 30, ops)
+        # Define Operation
+        cost_op = tf.get_default_graph().get_tensor_by_name('cost_op:0')
+        acc_op = tf.get_default_graph().get_tensor_by_name('acc_op:0')
+        # acc_op = tf.get_collection(tf.GraphKeys.METRIC_VARIABLES)[0]
+        train_op = tf.get_collection(tf.GraphKeys.TRAIN_OP)[0]
+        merge_op = tf.summary.merge_all()
 
-    def test_compile_34(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_34([None, 224, 224, 3], 120)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        tf_simple_resnet.create_session()
+        # Create Session
+        sess = tf.Session()
+        sess.run(tf.global_variables_initializer())
+        sess.run(tf.local_variables_initializer())
+        fetches = [train_op, cost_op, acc_op, merge_op]
+        feed_dict = {x: self.train_imgs[:60], y: self.train_labs[:60], phase_train: True, learning_rate: 0.000000001}
 
-    def test_training_34(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_34([None, 224, 224, 3], 10)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.training(sess, 5, self.val_imgs, self.val_labs, 30, ops)
+        # Training
+        for step in range(5):
+            _, cost, acc, summary_merge = sess.run(fetches=fetches, feed_dict=feed_dict)
+            writer.add_summary(summary_merge, global_step=step)
+            print('step : {} cost : {} , acc : {}'.format(step, cost, acc))
 
-    def test_testing_34(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_34([None, 224, 224, 3], 10)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
+        # Validation
+        fetches = [cost_op, acc_op]
+        feed_dict = {x: self.val_imgs[:60], y: self.val_labs[:60], phase_train: False}
+        val_cost, val_acc = sess.run(fetches=fetches, feed_dict=feed_dict)
 
-    def test_compile_50(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_50([None, 224, 224, 3], 120)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        tf_simple_resnet.create_session()
+        # Model save and restore
+        saver = tf.train.Saver()
+        saver.save(sess, './tmp_dir/models/{}/model'.format(model_name))
 
-    def test_training_50(self):
+        # Reset graph
         tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_50([None, 224, 224, 3], 10)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.training(sess, 5, self.val_imgs, self.val_labs, 30, ops)
+        tf.train.import_meta_graph('./tmp_dir/models/{}/model.meta'.format(model_name))
+        saver = tf.train.Saver()
+        sess = tf.Session()
+        saver.restore(sess, './tmp_dir/models/{}/model'.format(model_name))
 
-    def test_testing_50(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_50([None, 224, 224, 3], 10)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
+        # Restore Node
+        x = tf.get_default_graph().get_tensor_by_name('x:0')
+        y = tf.get_default_graph().get_tensor_by_name('y:0')
+        phase_train = tf.get_default_graph().get_tensor_by_name('phase_train:0')
+        cost_op = tf.get_default_graph().get_tensor_by_name('cost_op:0')
+        acc_op = tf.get_default_graph().get_tensor_by_name('acc_op:0')
+        fetches = [acc_op, cost_op]
 
-    def test_compile_101(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_101([None, 224, 224, 3], 120)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        tf_simple_resnet.create_session()
+        # Run Session
+        feed_dict = {x: self.val_imgs[:60], y: self.val_labs[:60], phase_train: False}
+        restore_acc, restore_cost = sess.run(fetches=fetches, feed_dict=feed_dict)
 
-    def test_training_101(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_101([None, 224, 224, 3], 10)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.training(sess, 5, self.val_imgs, self.val_labs, 30, ops)
-
-    def test_testing_101(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_101([None, 224, 224, 3], 10)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
-
-    def test_compile_152(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_152([None, 224, 224, 3], 120)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        tf_simple_resnet.create_session()
-
-    def test_training_152(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_152([None, 224, 224, 3], 10)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.training(sess, 5, self.val_imgs, self.val_labs, 30, ops)
-
-    def test_testing_152(self):
-        tf.reset_default_graph()
-        ops = tf_simple_resnet.resnet_152([None, 224, 224, 3], 10)
-        tf_simple_resnet.compile('sgd', ops, 0.01)
-        sess = tf_simple_resnet.create_session()
-        tf_simple_resnet.eval(sess, self.val_imgs[:30], self.val_labs[:30], ops)
+        # Restore 했을때 Validation 결과값이 동일해야 합니다
+        self.assertEqual(float(restore_acc), float(val_acc))
+        self.assertEqual(float(restore_cost), float(val_cost))
