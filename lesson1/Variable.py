@@ -1,4 +1,7 @@
 # 학습 목표
+# - Tensorflow 을 이루는 node 와 operation 을 이해하기
+
+# - node 와 operation 을 관리하기 , get collections
 # - 노드 개념 이해하기
 # - 변수의 개념과 변수를 만드는 법
 # - 변수를 관리 하기
@@ -6,7 +9,8 @@
 
 # - 궁굼한 것들 각  Variable 이 어떤 Graph Key 에 들어 있는지 확인할 려면?
 # - Input placeholder 는 기본적으로 어떤 그래프에 들어가지?
-# - c
+
+
 
 import tensorflow as tf
 with tf.variable_scope('placholder') as name:

@@ -52,7 +52,7 @@ class TestTFSimpleVGG(unittest.TestCase):
                      keep_prob: 0.5}
 
         # Training
-        for step in range(5):
+        for step in range(10):
             _, cost, acc, summary_merge = sess.run(fetches=fetches, feed_dict=feed_dict)
             writer.add_summary(summary_merge, global_step=step)
             print('step : {} cost : {} , acc : {}'.format(step, cost, acc))

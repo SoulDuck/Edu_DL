@@ -1,30 +1,4 @@
 import tensorflow as tf
-import os
-import numpy as np
-import random
-
-
-# Conv Feature Extractor
-def variable_summaries(name, var):
-    """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
-    with tf.name_scope('{}_summaries'.format(name)):
-        mean = tf.reduce_mean(var)
-        tf.summary.scalar('mean', mean)
-        with tf.name_scope('stddev'):
-            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
-            tf.summary.scalar('stddev', stddev)
-            tf.summary.scalar('max', tf.reduce_max(var))
-            tf.summary.scalar('min', tf.reduce_min(var))
-            tf.summary.histogram('histogram', var)
-
-
-def ops_summaries(ops):
-    tf.summary.scalar('cost', ops['cost_op'])
-    tf.summary.scalar('accuracy', ops['acc_op'])
-    """
-    if you want add image to tensorboard, uncomment this line 
-    tf.summary.image('input', ops['x'], 16)
-    """
 
 
 def vgg_11(input_shape, n_classes):
@@ -36,9 +10,9 @@ def vgg_11(input_shape, n_classes):
     """
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
-    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
     keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
     learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
+    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
     # Convolution Initializer
     he_init = tf.initializers.variance_scaling(scale=2)
@@ -80,15 +54,14 @@ def vgg_11(input_shape, n_classes):
 
     with tf.variable_scope('fc1'):
         layer = tf.layers.dense(flat_layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
-        layer = tf.layers.dropout(layer,keep_prob)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
         layer = activation(layer)
     with tf.variable_scope('fc2'):
         layer = tf.layers.dense(layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
-        layer = tf.layers.dropout(layer,keep_prob)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
         layer = activation(layer)
     with tf.variable_scope('logits'):
         logits = tf.layers.dense(layer, n_classes, use_bias=True, kernel_initializer=xavier_init)
-
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
@@ -103,11 +76,6 @@ def vgg_11(input_shape, n_classes):
     # Train op
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
-    # Add trainable node to summary
-    trainable_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    for var in trainable_var:
-        variable_summaries(var.op.name, var)
-
 
 def vgg_13(input_shape, n_classes):
     """
@@ -118,9 +86,9 @@ def vgg_13(input_shape, n_classes):
     """
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
-    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
     keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
     learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
+    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
     # Convolution Initializer
     he_init = tf.initializers.variance_scaling(scale=2)
@@ -167,15 +135,14 @@ def vgg_13(input_shape, n_classes):
 
     with tf.variable_scope('fc1'):
         layer = tf.layers.dense(flat_layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
-        layer = tf.layers.dropout(layer,keep_prob)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
         layer = activation(layer)
     with tf.variable_scope('fc2'):
         layer = tf.layers.dense(layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
-        layer = tf.layers.dropout(layer,keep_prob)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
         layer = activation(layer)
     with tf.variable_scope('logits'):
         logits = tf.layers.dense(layer, n_classes, use_bias=True, kernel_initializer=xavier_init)
-
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
@@ -190,11 +157,6 @@ def vgg_13(input_shape, n_classes):
     # Train op
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
-    # Add trainable node to summary
-    trainable_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    for var in trainable_var:
-        variable_summaries(var.op.name, var)
-
 
 def vgg_16(input_shape, n_classes):
     """
@@ -203,11 +165,12 @@ def vgg_16(input_shape, n_classes):
     :param n_classes:
     :return:
     """
+
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
-    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
     keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
     learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
+    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
     # Convolution Initializer
     he_init = tf.initializers.variance_scaling(scale=2)
@@ -259,15 +222,14 @@ def vgg_16(input_shape, n_classes):
 
     with tf.variable_scope('fc1'):
         layer = tf.layers.dense(flat_layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
-        layer = tf.layers.dropout(layer,keep_prob)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
         layer = activation(layer)
     with tf.variable_scope('fc2'):
         layer = tf.layers.dense(layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
-        layer = tf.layers.dropout(layer,keep_prob)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
         layer = activation(layer)
     with tf.variable_scope('logits'):
         logits = tf.layers.dense(layer, n_classes, use_bias=True, kernel_initializer=xavier_init)
-
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
@@ -282,11 +244,6 @@ def vgg_16(input_shape, n_classes):
     # Train op
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
-    # Add trainable node to summary
-    trainable_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    for var in trainable_var:
-        variable_summaries(var.op.name, var)
-
 
 def vgg_19(input_shape, n_classes):
     """
@@ -297,9 +254,9 @@ def vgg_19(input_shape, n_classes):
     """
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
-    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
     keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
     learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
+    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
     # Convolution Initializer
     he_init = tf.initializers.variance_scaling(scale=2)
@@ -361,11 +318,11 @@ def vgg_19(input_shape, n_classes):
 
     with tf.variable_scope('fc1'):
         layer = tf.layers.dense(flat_layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
-        layer = tf.layers.dropout(layer,keep_prob)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
         layer = activation(layer)
     with tf.variable_scope('fc2'):
         layer = tf.layers.dense(layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
-        layer = tf.layers.dropout(layer,keep_prob)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
         layer = activation(layer)
     with tf.variable_scope('logits'):
         logits = tf.layers.dense(layer, n_classes, use_bias=True, kernel_initializer=xavier_init)
@@ -382,8 +339,3 @@ def vgg_19(input_shape, n_classes):
 
     # Train op
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
-
-    # Add trainable node to summary
-    trainable_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    for var in trainable_var:
-        variable_summaries(var.op.name, var)

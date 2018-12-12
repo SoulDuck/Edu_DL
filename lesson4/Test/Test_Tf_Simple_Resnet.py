@@ -5,8 +5,8 @@ import unittest
 import cifar
 import tensorflow as tf
 import tf_simple_resnet
-from PIL import Image
 import numpy as np
+
 
 class TestTFSimpleResnet(unittest.TestCase):
     def setUp(self):
@@ -167,7 +167,7 @@ class TestTFSimpleResnet(unittest.TestCase):
         sess.run(tf.global_variables_initializer())
         sess.run(tf.local_variables_initializer())
         fetches = [train_op, cost_op, acc_op, merge_op]
-        feed_dict = {x: self.train_imgs[:60], y: self.train_labs[:60], phase_train: True, learning_rate: 0.0001}
+        feed_dict = {x: self.train_imgs[:60], y: self.train_labs[:60], phase_train: True, learning_rate: 0.01}
 
         # Training
         for step in range(5):

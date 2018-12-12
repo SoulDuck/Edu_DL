@@ -1,29 +1,6 @@
 import tensorflow as tf
 
 
-# Conv Feature Extractor
-def variable_summaries(name, var):
-    """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
-    with tf.name_scope('{}_summaries'.format(name)):
-        mean = tf.reduce_mean(var)
-        tf.summary.scalar('mean', mean)
-        with tf.name_scope('stddev'):
-            stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
-            tf.summary.scalar('stddev', stddev)
-            tf.summary.scalar('max', tf.reduce_max(var))
-            tf.summary.scalar('min', tf.reduce_min(var))
-            tf.summary.histogram('histogram', var)
-
-
-def ops_summaries(ops):
-    tf.summary.scalar('cost', ops['cost_op'])
-    tf.summary.scalar('accuracy', ops['acc_op'])
-    """
-    if you want add image to tensorboard, uncomment this line 
-    tf.summary.image('input', ops['x'], 16)
-    """
-
-
 def batch_normalization(x, phase_train, scope_name):
     with tf.variable_scope(scope_name):
         n_out = int(x.get_shape()[-1])
@@ -306,11 +283,6 @@ def resnet_18(input_shape, n_classes):
     # Train op
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
-    # Add trainable node to summary
-    trainable_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    for var in trainable_var:
-        variable_summaries(var.op.name, var)
-
 
 def resnet_34(input_shape, n_classes):
 
@@ -370,9 +342,6 @@ def resnet_34(input_shape, n_classes):
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
     # Add trainable node to summary
-    trainable_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    for var in trainable_var:
-        variable_summaries(var.op.name, var)
 
 
 def resnet_50(input_shape, n_classes):
@@ -433,11 +402,6 @@ def resnet_50(input_shape, n_classes):
     # Train op
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
-    # Add trainable node to summary
-    trainable_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    for var in trainable_var:
-        variable_summaries(var.op.name, var)
-
 
 def resnet_101(input_shape, n_classes):
 
@@ -497,11 +461,6 @@ def resnet_101(input_shape, n_classes):
     # Train op
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
-    # Add trainable node to summary
-    trainable_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    for var in trainable_var:
-        variable_summaries(var.op.name, var)
-
 
 def resnet_151(input_shape, n_classes):
 
@@ -560,8 +519,3 @@ def resnet_151(input_shape, n_classes):
 
     # Train op
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
-
-    # Add trainable node to summary
-    trainable_var = tf.get_collection(tf.GraphKeys.TRAINABLE_VARIABLES)
-    for var in trainable_var:
-        variable_summaries(var.op.name, var)
