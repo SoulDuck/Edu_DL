@@ -3,7 +3,30 @@ import sys
 import os
 from PIL import Image
 import matplotlib.pyplot as plt
+import tensorflow as tf
 
+
+# Conv Feature Extractor
+def variable_summaries(name, var):
+    """Attach a lot of summaries to a Tensor (for TensorBoard visualization)."""
+    with tf.name_scope('{}_summaries'.format(name)):
+        mean = tf.reduce_mean(var)
+        tf.summary.scalar('mean', mean)
+    with tf.name_scope('stddev'):
+        stddev = tf.sqrt(tf.reduce_mean(tf.square(var - mean)))
+        tf.summary.scalar('stddev', stddev)
+        tf.summary.scalar('max', tf.reduce_max(var))
+        tf.summary.scalar('min', tf.reduce_min(var))
+        tf.summary.histogram('histogram', var)
+
+
+def ops_summaries(ops):
+    tf.summary.scalar('cost', ops['cost_op'])
+    tf.summary.scalar('accuracy', ops['acc_op'])
+    """
+    if you want add image to tensorboard, uncomment this line 
+    tf.summary.image('input', ops['x'], 16)
+    """
 
 def plot_images(images, labels=None, save_path=None):
     if isinstance(images, np.ndarray) and images.ndim == 3:

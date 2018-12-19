@@ -47,3 +47,52 @@ sess=tf.Session()
 sess.run(tf.global_variables_initializer())
 
 
+
+
+tf.reset_default_graph()
+
+const_a = tf.constant(value=0)
+const_b = tf.constant(value=1,shape=[2,3])
+var_a = tf.Variable(initial_value=0)
+
+sess = tf.Session()
+print(sess.run(const_b))
+
+
+
+tf.reset_default_graph()
+import tensorflow as tf
+import numpy as np
+var_0 = tf.Variable(initial_value=0)
+
+np_init = np.asarray([[1,1,1],[2,2,2]]) # shape = [2,3]
+var_1 = tf.Variable(np_init)
+
+var_2 = tf.Variable(var_0)
+
+sess = tf.Session()
+
+
+sess.run(var_0.initializer)
+sess.run(var_1.initializer)
+sess.run(var_2.initializer)
+
+print(sess.run(var_0))
+print(sess.run(var_1))
+print(sess.run(var_2))
+
+
+
+
+tf.reset_default_graph()
+import tensorflow as tf
+
+var_0 = tf.Variable(initial_value=1)
+assign_tensor = tf.assign(var_0, var_0 + 1)
+
+sess = tf.Session()
+sess.run(var_0.initializer)
+
+print("before run var_2, var_0 : {}".format(var_0.eval(session=sess)))
+sess.run(assign_tensor)
+print("after run var_2, var_0 : {}".format(var_0.eval(session=sess)))
