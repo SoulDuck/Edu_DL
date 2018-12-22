@@ -3,7 +3,6 @@ import tensorflow as tf
 
 def alexnet(input_shape, n_classes):
     """
-
     :param input_shape: MUST be 4 dimension tensor | E.g) [None, 224,224,3]:
     :param n_classes:
     :return:
@@ -76,6 +75,5 @@ def alexnet(input_shape, n_classes):
     pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
     tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
-
     # Train op
     tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
