@@ -6,7 +6,6 @@ import random
 
 def alexnet(input_shape, n_classes):
     """
-
     :param input_shape: MUST be 4 dimension tensor | E.g) [None, 224,224,3]:
     :param n_classes:
     :return:
@@ -179,3 +178,5 @@ def eval(sess, batch_xs, batch_ys, ops):
     feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: False}
 
     return sess.run(fetches, feed_dict)
+
+
