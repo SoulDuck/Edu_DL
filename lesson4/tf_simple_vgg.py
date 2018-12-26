@@ -1,7 +1,4 @@
 import tensorflow as tf
-import os
-import numpy as np
-import random
 
 
 def vgg_11(input_shape, n_classes):
@@ -13,6 +10,8 @@ def vgg_11(input_shape, n_classes):
     """
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
+    keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
+    learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
     phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
     # Convolution Initializer
@@ -54,26 +53,28 @@ def vgg_11(input_shape, n_classes):
     xavier_init = tf.initializers.variance_scaling(scale=1)
 
     with tf.variable_scope('fc1'):
-        fc1 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc1 = tf.cond(phase_train, lambda: tf.nn.dropout(fc1, 0.5), lambda: fc1)
+        layer = tf.layers.dense(flat_layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
+        layer = activation(layer)
     with tf.variable_scope('fc2'):
-        fc2 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2, 0.5), lambda: fc2)
+        layer = tf.layers.dense(layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
+        layer = activation(layer)
     with tf.variable_scope('logits'):
-        logits = tf.layers.dense(fc2, n_classes, use_bias=True, kernel_initializer=xavier_init)
+        logits = tf.layers.dense(layer, n_classes, use_bias=True, kernel_initializer=xavier_init)
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
-    cost_op = tf.reduce_mean(costs_op)
+    cost_op = tf.reduce_mean(costs_op, name='cost_op')
 
     # Accuracy
+    # 자동으로 tf.GraphKeys.METRIC tf.GraphKeys.METRIC_VARIABLES 에 추가됨
+    pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
-    correct = tf.nn.in_top_k(logits, y_cls, 1)
-    acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
+    tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
 
-    # return ops
-    ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
-    return ops
+    # Train op
+    tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
 
 def vgg_13(input_shape, n_classes):
@@ -85,6 +86,8 @@ def vgg_13(input_shape, n_classes):
     """
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
+    keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
+    learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
     phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
     # Convolution Initializer
@@ -131,26 +134,28 @@ def vgg_13(input_shape, n_classes):
     xavier_init = tf.initializers.variance_scaling(scale=1)
 
     with tf.variable_scope('fc1'):
-        fc1 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc1 = tf.cond(phase_train, lambda: tf.nn.dropout(fc1, 0.5), lambda: fc1)
+        layer = tf.layers.dense(flat_layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
+        layer = activation(layer)
     with tf.variable_scope('fc2'):
-        fc2 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2, 0.5), lambda: fc2)
+        layer = tf.layers.dense(layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
+        layer = activation(layer)
     with tf.variable_scope('logits'):
-        logits = tf.layers.dense(fc2, n_classes, use_bias=True, kernel_initializer=xavier_init)
+        logits = tf.layers.dense(layer, n_classes, use_bias=True, kernel_initializer=xavier_init)
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
-    cost_op = tf.reduce_mean(costs_op)
+    cost_op = tf.reduce_mean(costs_op, name='cost_op')
 
     # Accuracy
+    # 자동으로 tf.GraphKeys.METRIC tf.GraphKeys.METRIC_VARIABLES 에 추가됨
+    pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
-    correct = tf.nn.in_top_k(logits, y_cls, 1)
-    acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
+    tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
 
-    # return ops
-    ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
-    return ops
+    # Train op
+    tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
 
 def vgg_16(input_shape, n_classes):
@@ -160,8 +165,11 @@ def vgg_16(input_shape, n_classes):
     :param n_classes:
     :return:
     """
+
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
+    keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
+    learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
     phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
     # Convolution Initializer
@@ -213,26 +221,28 @@ def vgg_16(input_shape, n_classes):
     xavier_init = tf.initializers.variance_scaling(scale=1)
 
     with tf.variable_scope('fc1'):
-        fc1 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc1 = tf.cond(phase_train, lambda: tf.nn.dropout(fc1, 0.5), lambda: fc1)
+        layer = tf.layers.dense(flat_layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
+        layer = activation(layer)
     with tf.variable_scope('fc2'):
-        fc2 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2, 0.5), lambda: fc2)
+        layer = tf.layers.dense(layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
+        layer = activation(layer)
     with tf.variable_scope('logits'):
-        logits = tf.layers.dense(fc2, n_classes, use_bias=True, kernel_initializer=xavier_init)
+        logits = tf.layers.dense(layer, n_classes, use_bias=True, kernel_initializer=xavier_init)
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
-    cost_op = tf.reduce_mean(costs_op)
+    cost_op = tf.reduce_mean(costs_op, name='cost_op')
 
     # Accuracy
+    # 자동으로 tf.GraphKeys.METRIC tf.GraphKeys.METRIC_VARIABLES 에 추가됨
+    pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
-    correct = tf.nn.in_top_k(logits, y_cls, 1)
-    acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
+    tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
 
-    # return ops
-    ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
-    return ops
+    # Train op
+    tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
 
 def vgg_19(input_shape, n_classes):
@@ -244,6 +254,8 @@ def vgg_19(input_shape, n_classes):
     """
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
+    keep_prob = tf.placeholder(dtype=tf.float32, name='keep_prob')
+    learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
     phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
 
     # Convolution Initializer
@@ -305,127 +317,25 @@ def vgg_19(input_shape, n_classes):
     xavier_init = tf.initializers.variance_scaling(scale=1)
 
     with tf.variable_scope('fc1'):
-        fc1 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc1 = tf.cond(phase_train, lambda: tf.nn.dropout(fc1, 0.5), lambda: fc1)
+        layer = tf.layers.dense(flat_layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
+        layer = activation(layer)
     with tf.variable_scope('fc2'):
-        fc2 = tf.layers.dense(flat_layer, 4096, activation=activation, use_bias=True, kernel_initializer=xavier_init)
-        fc2 = tf.cond(phase_train, lambda: tf.nn.dropout(fc2, 0.5), lambda: fc2)
+        layer = tf.layers.dense(layer, 4096, activation=None, use_bias=True, kernel_initializer=xavier_init)
+        layer = tf.layers.dropout(layer, keep_prob, training=phase_train)
+        layer = activation(layer)
     with tf.variable_scope('logits'):
-        logits = tf.layers.dense(fc2, n_classes, use_bias=True, kernel_initializer=xavier_init)
+        logits = tf.layers.dense(layer, n_classes, use_bias=True, kernel_initializer=xavier_init)
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
-    cost_op = tf.reduce_mean(costs_op)
+    cost_op = tf.reduce_mean(costs_op, name='cost_op')
 
     # Accuracy
+    # 자동으로 tf.GraphKeys.METRIC tf.GraphKeys.METRIC_VARIABLES 에 추가됨
+    pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
-    correct = tf.nn.in_top_k(logits, y_cls, 1)
-    acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
+    tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
 
-    # return ops
-    ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
-    return ops
-
-
-def compile(optimizer_name, ops, learning_rate):
-    cost_op = ops['cost_op']
-    optimizer_name = optimizer_name.lower()
-    if optimizer_name == 'sgd':
-        train_op = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op)
-
-    elif optimizer_name == 'momentum':
-        train_op = tf.train.MomentumOptimizer(learning_rate, momentum=0.9, use_nesterov=True).minimize(cost_op)
-
-    elif optimizer_name == 'rmsprop':
-        train_op = tf.train.RMSPropOptimizer(learning_rate).minimize(cost_op)
-
-    elif optimizer_name == 'adadelta':
-        train_op = tf.train.AdadeltaOptimizer(learning_rate).minimize(cost_op)
-
-    elif optimizer_name == 'adagrad':
-        train_op = tf.train.AdagradOptimizer(learning_rate).minimize(cost_op)
-
-    elif optimizer_name == 'adam':
-        train_op = tf.train.AdamOptimizer(learning_rate).minimize(cost_op)
-
-    # elif optimizer_name == 'adagradda':
-    #    train_op = tf.train.AdagradDAOptimizer(learning_rate).minimize(cost_op)
-
-    else:
-        raise ValueError
-
-    # add train_op to ops
-    ops['train_op'] = train_op
-
-    return ops
-
-
-def create_session():
-
-    """config Option
-     allow_soft_placement :  if cannot put a node in a gpu , put node to in a cpu
-     log_device_placement :  show where each node is assigned
-     config.gpu_options.allow_growth : 처음부터 메모리를 점유하지 말고 필요한 메모리를 점차 증가 시킵니다
-    """
-
-    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
-    config.gpu_options.allow_growth = True
-    sess = tf.Session(config=config)
-    init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
-    sess.run(init)
-    return sess
-
-
-def next_batch(imgs, labs, batch_size):
-    # random shuffle list
-    indices = random.sample(range(np.shape(imgs)[0]), batch_size)
-
-    imgs = np.asarray(imgs)
-    batch_xs = imgs[indices]
-    batch_ys = labs[indices]
-    return batch_xs, batch_ys
-
-
-def training(sess, n_step, train_images, train_labels, batch_size, ops):
-    """
-    Usage :
-    >>> training(sess, n_step, batch_xs, batch_ys, ops)
-    :param sess: tf.Session
-    :param n_step: int | E.g)
-    :param train_images: Numpy | E.g)
-    :param train_labels: Numpy | E.g)
-    :param ops: tensor operations | E.g)
-    :param batch_size int | E.g) 64
-    :return: cost values
-
-    """
-
-    cost_values = []
-    for i in range(n_step):
-
-        # Extract batch images , labels
-        batch_xs, batch_ys = next_batch(train_images, train_labels, batch_size)
-        # Training
-        fetches = [ops['train_op'], ops['cost_op']]
-        feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: True}
-        _, cost = sess.run(fetches, feed_dict)
-        cost_values.append(cost)
-
-    return cost_values
-
-
-def eval(sess, batch_xs, batch_ys, ops):
-    """
-    Usage :
-    >>> eval(sess, batch_xs, batch_ys, ops)
-    :param sess: tf.Session
-    :param batch_xs: xs | E.g)
-    :param batch_ys: ys | E.g)
-    :param ops: tensor operations | E.g)
-    :return: cost values
-    """
-
-    fetches = [ops['acc_op'], ops['cost_op']]
-    feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: False}
-
-    return sess.run(fetches, feed_dict)
+    # Train op
+    tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')

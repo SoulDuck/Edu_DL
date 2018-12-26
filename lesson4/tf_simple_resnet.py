@@ -1,15 +1,12 @@
 import tensorflow as tf
-import numpy as np
-import random
 
-def batch_normalization(x, phase_train , scope_name):
+
+def batch_normalization(x, phase_train, scope_name):
     with tf.variable_scope(scope_name):
-        n_out=int(x.get_shape()[-1])
-        beta = tf.Variable(tf.constant(0.0, shape=[n_out]),
-                                     name='beta', trainable=True)
-        gamma = tf.Variable(tf.constant(1.0, shape=[n_out]),
-                                      name='gamma', trainable=True)
-        batch_mean, batch_var = tf.nn.moments(x, [0,1,2], name='moments')
+        n_out = int(x.get_shape()[-1])
+        beta = tf.Variable(tf.constant(0.0, shape=[n_out]), name='beta', trainable=True)
+        gamma = tf.Variable(tf.constant(1.0, shape=[n_out]), name='gamma', trainable=True)
+        batch_mean, batch_var = tf.nn.moments(x, [0, 1, 2], name='moments')
         ema = tf.train.ExponentialMovingAverage(decay=0.5)
 
         def mean_var_with_update():
@@ -236,7 +233,8 @@ def resnet_18(input_shape, n_classes):
 
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
-    phase_train = tf.placeholder(dtype=tf.bool)
+    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
+    learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
 
     # Stem Block
     layer = stem(x, phase_train=phase_train)
@@ -274,22 +272,24 @@ def resnet_18(input_shape, n_classes):
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
-    cost_op = tf.reduce_mean(costs_op)
+    cost_op = tf.reduce_mean(costs_op, name='cost_op')
 
     # Accuracy
+    # 자동으로 tf.GraphKeys.METRIC tf.GraphKeys.METRIC_VARIABLES 에 추가됨
+    pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
-    correct = tf.nn.in_top_k(logits, y_cls, 1)
-    acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
+    tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
 
-    # return ops
-    ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
-    return ops
+    # Train op
+    tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
 
 def resnet_34(input_shape, n_classes):
+
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
-    phase_train = tf.placeholder(dtype=tf.bool)
+    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
+    learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
 
     # Stem Block
     layer = stem(x, phase_train=phase_train)
@@ -330,23 +330,26 @@ def resnet_34(input_shape, n_classes):
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
-    cost_op = tf.reduce_mean(costs_op)
+    cost_op = tf.reduce_mean(costs_op, name='cost_op')
 
     # Accuracy
+    # 자동으로 tf.GraphKeys.METRIC tf.GraphKeys.METRIC_VARIABLES 에 추가됨
+    pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
-    correct = tf.nn.in_top_k(logits, y_cls, 1)
-    acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
+    tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
 
-    # return ops
-    ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
-    return ops
+    # Train op
+    tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
+
+    # Add trainable node to summary
 
 
 def resnet_50(input_shape, n_classes):
 
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
-    phase_train = tf.placeholder(dtype=tf.bool)
+    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
+    learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
 
     # Stem Block
     layer = stem(x, phase_train=phase_train)
@@ -388,23 +391,24 @@ def resnet_50(input_shape, n_classes):
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
-    cost_op = tf.reduce_mean(costs_op)
+    cost_op = tf.reduce_mean(costs_op, name='cost_op')
 
     # Accuracy
+    # 자동으로 tf.GraphKeys.METRIC tf.GraphKeys.METRIC_VARIABLES 에 추가됨
+    pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
-    correct = tf.nn.in_top_k(logits, y_cls, 1)
-    acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
+    tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
 
-    # return ops
-    ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
-    return ops
+    # Train op
+    tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
 
 def resnet_101(input_shape, n_classes):
 
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
-    phase_train = tf.placeholder(dtype=tf.bool)
+    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
+    learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
 
     # Stem Block
     layer = stem(x, phase_train=phase_train)
@@ -446,23 +450,24 @@ def resnet_101(input_shape, n_classes):
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
-    cost_op = tf.reduce_mean(costs_op)
+    cost_op = tf.reduce_mean(costs_op, name='cost_op')
 
     # Accuracy
+    # 자동으로 tf.GraphKeys.METRIC tf.GraphKeys.METRIC_VARIABLES 에 추가됨
+    pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
-    correct = tf.nn.in_top_k(logits, y_cls, 1)
-    acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
+    tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
 
-    # return ops
-    ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
-    return ops
+    # Train op
+    tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
 
 
-def resnet_152(input_shape, n_classes):
+def resnet_151(input_shape, n_classes):
 
     x = tf.placeholder(dtype=tf.float32, shape=input_shape, name='x')
     y = tf.placeholder(dtype=tf.float32, shape=[None, n_classes], name='y')
-    phase_train = tf.placeholder(dtype=tf.bool)
+    phase_train = tf.placeholder(dtype=tf.bool, name='phase_train')
+    learning_rate = tf.placeholder(dtype=tf.float32, name='learning_rate')
 
     # Stem Block
     layer = stem(x, phase_train=phase_train)
@@ -486,6 +491,7 @@ def resnet_152(input_shape, n_classes):
     layer = bottlenect_block_projection(layer, out_ch=2048, phase_train=phase_train)
     for i in range(2):
         layer = bottlenect_block(layer, out_ch=2048, phase_train=phase_train)
+
     # Change node name
     top_conv = tf.identity(layer, 'top_conv')
 
@@ -503,116 +509,13 @@ def resnet_152(input_shape, n_classes):
 
     # Mean cost values
     costs_op = tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits)
-    cost_op = tf.reduce_mean(costs_op)
+    cost_op = tf.reduce_mean(costs_op, name='cost_op')
 
     # Accuracy
+    # 자동으로 tf.GraphKeys.METRIC tf.GraphKeys.METRIC_VARIABLES 에 추가됨
+    pred_cls = tf.argmax(logits, axis=1)
     y_cls = tf.argmax(y, axis=1)
-    correct = tf.nn.in_top_k(logits, y_cls, 1)
-    acc_op = tf.reduce_mean(tf.cast(correct, tf.float32))
+    tf.reduce_mean(tf.cast(tf.equal(pred_cls, y_cls), dtype=tf.float32), name='acc_op')
 
-    # return ops
-    ops = {'x': x, 'y': y, 'phase_train': phase_train, 'cost_op': cost_op, 'acc_op': acc_op}
-    return ops
-
-
-def compile(optimizer_name, ops, learning_rate):
-    cost_op = ops['cost_op']
-    optimizer_name = optimizer_name.lower()
-    if optimizer_name == 'sgd':
-        train_op = tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op)
-
-    elif optimizer_name == 'momentum':
-        train_op = tf.train.MomentumOptimizer(learning_rate, momentum=0.9, use_nesterov=True).minimize(cost_op)
-
-    elif optimizer_name == 'rmsprop':
-        train_op = tf.train.RMSPropOptimizer(learning_rate).minimize(cost_op)
-
-    elif optimizer_name == 'adadelta':
-        train_op = tf.train.AdadeltaOptimizer(learning_rate).minimize(cost_op)
-
-    elif optimizer_name == 'adagrad':
-        train_op = tf.train.AdagradOptimizer(learning_rate).minimize(cost_op)
-
-    elif optimizer_name == 'adam':
-        train_op = tf.train.AdamOptimizer(learning_rate).minimize(cost_op)
-
-    # elif optimizer_name == 'adagradda':
-    #    train_op = tf.train.AdagradDAOptimizer(learning_rate).minimize(cost_op)
-
-    else:
-        raise ValueError
-
-    # add train_op to ops
-    ops['train_op'] = train_op
-
-    return ops
-
-
-def create_session():
-
-    """config Option
-     allow_soft_placement :  if cannot put a node in a gpu , put node to in a cpu
-     log_device_placement :  show where each node is assigned
-     config.gpu_options.allow_growth : 처음부터 메모리를 점유하지 말고 필요한 메모리를 점차 증가 시킵니다
-    """
-
-    config = tf.ConfigProto(allow_soft_placement=True, log_device_placement=True)
-    config.gpu_options.allow_growth = True
-    sess = tf.Session(config=config)
-    init = tf.group(tf.global_variables_initializer(), tf.local_variables_initializer())
-    sess.run(init)
-    return sess
-
-
-def next_batch(imgs, labs, batch_size):
-    # random shuffle list
-    indices = random.sample(range(np.shape(imgs)[0]), batch_size)
-
-    imgs = np.asarray(imgs)
-    batch_xs = imgs[indices]
-    batch_ys = labs[indices]
-    return batch_xs, batch_ys
-
-
-def training(sess, n_step, train_images, train_labels, batch_size, ops):
-    """
-    Usage :
-    >>> training(sess, n_step, batch_xs, batch_ys, ops)
-    :param sess: tf.Session
-    :param n_step: int | E.g)
-    :param train_images: Numpy | E.g)
-    :param train_labels: Numpy | E.g)
-    :param batch_size: Int | E.g) 64
-    :param ops: tensor operations | E.g)
-    :return: cost values
-    """
-
-    cost_values = []
-    for i in range(n_step):
-
-        # Extract batch images , labels
-        batch_xs, batch_ys = next_batch(train_images, train_labels, batch_size)
-        # Training
-        fetches = [ops['train_op'], ops['cost_op']]
-        feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: True}
-        _, cost = sess.run(fetches, feed_dict)
-        cost_values.append(cost)
-
-    return cost_values
-
-
-def eval(sess, batch_xs, batch_ys, ops):
-    """
-    Usage :
-    >>> eval(sess, batch_xs, batch_ys, ops)
-    :param sess: tf.Session
-    :param batch_xs: xs | E.g)
-    :param batch_ys: ys | E.g)
-    :param ops: tensor operations | E.g)
-    :return: cost values
-    """
-
-    fetches = [ops['acc_op'], ops['cost_op']]
-    feed_dict = {ops['x']: batch_xs, ops['y']: batch_ys, ops['phase_train']: False}
-
-    return sess.run(fetches, feed_dict)
+    # Train op
+    tf.train.GradientDescentOptimizer(learning_rate).minimize(cost_op, name='train_op')
