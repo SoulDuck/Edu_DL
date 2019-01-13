@@ -16,8 +16,10 @@ with tf.name_scope('cal'):
     ns = tf.Variable(zs_zeros,name='ns')
     print(ns)
 
-
+# add tensor to tensorboard
 ns_image_tb = tf.summary.image(name='ns_image',tensor=tf.reshape(ns,shape=[1,520,600,1]))
+ns_mean_tb = tf.summary.scalar(name='ns_mean',tensor=tf.reduce_mean(tf.reduce_mean(ns)))
+ns_hist_tb = tf.summary.histogram(name='ns_hist',values=ns)
 
 zs_squre = tf.multiply(zs,zs)
 zs_add = tf.add(zs_squre , xs)
@@ -25,12 +27,11 @@ zs_abs = tf.abs(zs_add)
 zs_less = tf.math.less(zs_abs , 4)
 zs_cast = tf.cast(zs_less , tf.float32)
 
-cast_mean_tb = tf.summary.scalar(name='cast_mean',tensor=tf.reduce_mean(zs_cast))
-cast_hist_tb = tf.summary.histogram(name='cast_hist',values=zs_cast )
 #
 step = tf.group(
   tf.assign(zs, zs_add),
-  tf.assign_add(ns, zs_cast)
+  tf.assign_add(ns, zs_cast),
+  name = 'step'
 )
 
 #
@@ -44,8 +45,7 @@ writer.add_graph(tf.get_default_graph())
 
 for i in range(200):
     _, tbs_,cast_ = sess.run([step,tbs,zs_cast])
-    print(cast_)
-    writer.add_summary(tbs_,global_step=i)
+    writer.add_summary(tbs_, global_step=i)
 
 saver.save(sess,save_path='./model/mandelbrot')
 value = sess.run(ns)
