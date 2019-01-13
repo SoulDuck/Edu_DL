@@ -1,0 +1,9 @@
+Mandelbrot , Julia , Rain Drop에 대한 숙제
+1. tensorboard 을 이용해 각 iteration 마다  이미지을 tensorboard 넣어주세요. 그리고 tensorboard 로 확인해주세요
+2. 변수를 save 하고 다시 load 해 불러온 결과를 확인해보세요.
+3. ns 을 이름으로 실행해주세요.
+
+
+
+
+

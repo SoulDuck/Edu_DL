@@ -60,8 +60,7 @@ for i in range(8000):
     if i % 500 == 0 :
         result = sess.run(U)
         result = (result + 0.1) / float(0.2) * 255
-        result = np.uint8(np.clip(result
-                                  , 0, 255))
+        #result = np.uint8(np.clip(result, 0, 255))
 
         #norm_result = (result - np.min(result)) / (np.max(result) - np.min(result))
 

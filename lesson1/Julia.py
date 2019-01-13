@@ -11,7 +11,6 @@ init_value = X + 1j * Y
 
 c = np.complex(0.0,0.75)
 c = tf.constant(c)
-#
 
 xs = tf.constant(init_value)
 zs = tf.Variable(xs)
@@ -28,7 +27,7 @@ zs_cast = tf.cast(zs_less , tf.float32)
 #
 step = tf.group(
   tf.assign(zs, zs_sub),
-  tf.assign_add(ns, zs_castㅂ
+  tf.assign_add(ns, zs_cast)
 )
 
 #
