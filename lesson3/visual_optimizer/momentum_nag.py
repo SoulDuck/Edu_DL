@@ -173,7 +173,7 @@ def tf_beale(x, y):
 # Training
 start_x = -3.
 start_y = -3.
-mmt = 0.7
+mmt = 0.9
 start_z = beale(start_x, start_y)
 momentum(start_x, start_y, 0.00005, tf_beale, mmt)
 momentum_nag(start_x, start_y, 0.00005, tf_beale, mmt)
@@ -188,8 +188,8 @@ nag_xs, nag_ys, nag_zs = trace(sess, 20000, 'NAG')
 ax = generate_beale()
 
 # add initial point [start_x] ,[start_y], [start_z]
-# ax.plot([start_x]+mm_xs, [start_y]+mm_ys, [start_z]+mmz_zs, label='momentum(beta={})'.format(mmt), color='b')
-#ax.plot([start_x]+nag_xs, [start_y]+nag_ys, [start_z]+nag_zs, label='nag(beta={})'.format(mmt), color='g')
+ax.plot([start_x]+mm_xs, [start_y]+mm_ys, [start_z]+mmz_zs, label='momentum(beta={})'.format(mmt), color='b')
+ax.plot([start_x]+nag_xs, [start_y]+nag_ys, [start_z]+nag_zs, label='nag(beta={})'.format(mmt), color='g')
 ax.plot([start_x],[start_y],[start_z], 'b.-')
 ax.legend()
 
