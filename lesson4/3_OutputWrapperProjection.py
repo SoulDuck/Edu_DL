@@ -1,32 +1,138 @@
 import tensorflow as tf
-from tensorflow.examples.tutorials.mnist import input_data
-mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
-n_classes = 10
-timestep = 28
-lr = 0.001
-x = tf.placeholder(shape=[None , timestep , 28] , dtype=tf.float32)
-y = tf.placeholder(shape=[None , n_classes] , dtype=tf.float32)
-x_trpose = tf.transpose(x , perm=(1,0,2))
-x_seq = tf.unstack(x_trpose)
-cell = tf.nn.rnn_cell.BasicRNNCell(num_units=100)
-outputs , hidden = tf.nn.static_rnn(cell, inputs=x_seq, dtype=tf.float32)
+import numpy as np
+import matplotlib.pyplot as plt
 
-init_value_W= tf.random_normal([100, n_classes], dtype=tf.float32)
-init_value_B = tf.random_normal([n_classes], dtype=tf.float32)
-W=tf.Variable(init_value_W)
-B=tf.Variable(init_value_B)
-output = tf.matmul(hidden ,W) +B
+"""
+OutputProjectionWrapper Vs BasicRNN Cell
 
-loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=y))
-train_op = tf.train.GradientDescentOptimizer(lr).minimize(loss)
+Projection 이란 투영 이란 개념으로 Resnet 에서도 사용되는 개념입니다 
+자신을 투영해 확대하거나 축소하는 개념을 가지고 있습니다 
+Projecter 의 개념을 생각해 보세요. 
 
+
+OutputProjectionWrapper 
+
+                        fc
+               state   layer
+   --------------------------
+
+     ___       ___      ___ 
+t1: |___| ->  |___| -> |___|(outputs[0]) 
+    <----------------------->
+             wrapper 
+     ___       ___      ___ 
+t2: |___| ->  |___| -> |___|(outputs[1])
+    <----------------------->
+             wrapper 
+
+            ....
+            if timestep = 9
+
+     ___       ___      ___ 
+t9: |___| ->  |___| -> |___|(output[9])
+              states
+    <----------------------->
+             wrapper 
+
+
+
+cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_neurons, activation=tf.nn.relu)
+warpped_cell = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size = n_outputs)
+outputs, states = tf.nn.dynamic_rnn(warpped_cell, x, dtype=tf.float32)
+
+"""
+
+
+# Data
+def time_series(t):
+    return t * np.sin(t) / 3 + 2 * np.sin(t * 5)
+
+
+t_min, t_max = 0, 30
+resolution = 0.1
+
+# Training Data
+n_steps = 21
+n_inputs = 1
+n_neurons = 100
+n_outputs = 1
+
+train_x_axis = np.arange(12.2, 12.2 + 0.1 * (n_steps + 1), 0.1)
+train_dataset = time_series(train_x_axis)
+
+# Validation Data
+val_x_axis = np.hstack([np.arange(0, 12.1, 0.1), np.arange(14.3, 30, 0.1)])
+val_dataset = time_series(val_x_axis)
+
+
+# Make dataset
+def generate_predict(datum, timestep):
+    xs = []
+    ys = []
+    for i in range(len(datum) - timestep):
+        """
+        please first read this 
+        if x is =[ 0 ,0.1, 0.2, 0.3, 0.4 , 0.5], timestpe is 5 
+        x = [0 ,0.1, 0.2, 0.3, 0.4] <- datum[0: 0 + timestep
+        y = [0.5] <- datum[0: 0 + timestep <- datum[i + timestep]
+        """
+        xs.append(datum[i: i + timestep])  # if time step = 5 [0 ,0.1, 0.2, 0.3, 0.4]
+        ys.append(datum[i + timestep])  # if time step = 5[0.5]
+    return np.asarray(xs), np.asarray(ys)
+
+
+train_xs, train_ys = generate_predict(train_dataset, n_steps)
+val_xs, val_ys = generate_predict(val_dataset, n_steps)
+
+
+def next_batch(xs, ys, batch_size):
+    indices = np.random.choice(len(xs), batch_size, replace=True)
+    return xs[indices], ys[indices]
+
+
+x = tf.placeholder(tf.float32, [None, n_steps, n_inputs])
+y = tf.placeholder(tf.float32, [None])
+
+cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_neurons, activation=tf.nn.relu)
+warpped_cell = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size=n_outputs)
+outputs, states = tf.nn.dynamic_rnn(warpped_cell, x, dtype=tf.float32)
+
+lr = 0.01
+loss = tf.reduce_mean(tf.square(outputs - y))
+optimizer = tf.train.AdamOptimizer(learning_rate=lr)
+train_op = optimizer.minimize(loss)
+
+init = tf.global_variables_initializer()
+sess = tf.Session()
+sess.run(init)
+
+# Train parameter
+iterations = 2000
+batch_size = 60
+
+# Training
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
+for i in range(iterations):
+    batch_xs, batch_ys = next_batch(train_xs, train_ys, batch_size)
+    print(batch_xs.shape)
+    batch_xs = batch_xs.reshape(batch_size, n_steps, n_inputs)
+    _, loss_ = sess.run([train_op, loss], feed_dict={x: batch_xs, y: batch_ys})
+    print(loss_)
 
-for i in range(3000):
-    batch_size = 60
-    batch_xs, batch_ys = mnist.train.next_batch(batch_size)
-    batch_xs = batch_xs.reshape(batch_size, 28,28)
-    _, train_loss = sess.run([train_op, loss], feed_dict={x: batch_xs , y: batch_ys})
-    print(train_loss)
+# Eval
+predicts = []
+for xs in val_xs:
+    xs = xs.reshape(1, n_steps, n_inputs)
+    outputs_, states_ = sess.run([outputs, states], feed_dict={x: xs})
+    predicts.append(np.squeeze(outputs_)[-1])
+
+# visualization Validation Dataset
+x_axis = val_x_axis[(n_steps - 1): (n_steps - 1) + len(val_ys)]
+plt.scatter(x_axis, val_ys, c='r', label='true')
+plt.scatter(x_axis, predicts, c='b', label='predict')
+plt.legend()
+plt.show()
+
+
 
