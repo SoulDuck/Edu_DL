@@ -35,4 +35,3 @@ for i in range(3000):
     batch_xs = batch_xs.reshape(batch_size, 28,28)
     _, train_loss = sess.run([train_op, loss], feed_dict={x: batch_xs , y: batch_ys})
     print(train_loss)
-
