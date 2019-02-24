@@ -3,8 +3,8 @@ from tensorflow.examples.tutorials.mnist import input_data
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 """
-Tip: 
-모든 열에 대한 정보가 담겨져있는 states 와 Fully connected layer 을 연결합니다
+구현 목적:  
+rnn 을 low level api 형태로 코딩해서 원리를 파악합니다.
 """
 
 n_classes = 10
