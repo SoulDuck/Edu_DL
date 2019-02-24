@@ -29,8 +29,6 @@ y = tf.placeholder(tf.float32, [None])
 y - output shape 가 (?, 21, ?) 이 된다 그래서 학습이 되지 않았다
 만약 코드를 3_1_FCN_without_OWP_fixed.py 이렇게 바꾸면 학습이 된다  
 """
-
-
 # Data
 def time_series(t):
     return t * np.sin(t) / 3 + 2 * np.sin(t * 5)

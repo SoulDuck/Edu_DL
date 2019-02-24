@@ -110,6 +110,7 @@ y = tf.placeholder(tf.float32, [None])
 
 cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_neurons, activation=tf.nn.relu)
 warpped_cell = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size=n_outputs)
+
 outputs, states = tf.nn.dynamic_rnn(warpped_cell, x, dtype=tf.float32)
 
 lr = 0.01
