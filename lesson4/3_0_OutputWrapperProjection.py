@@ -11,7 +11,6 @@ Projecter 의 개념을 생각해 보세요.
 
 
 OutputProjectionWrapper 
-
                         fc
                state   layer
    --------------------------
@@ -41,9 +40,6 @@ warpped_cell = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size = n_outp
 outputs, states = tf.nn.dynamic_rnn(warpped_cell, x, dtype=tf.float32)
 
 """
-
-
-
 
 t_min, t_max = 0, 30
 resolution = 0.1

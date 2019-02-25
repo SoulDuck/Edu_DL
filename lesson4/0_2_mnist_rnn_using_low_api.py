@@ -36,7 +36,8 @@ random_init = tf.random_normal(shape=[n_outputs, n_outputs], dtype=tf.float32, s
 w_hidden = tf.Variable(random_init)
 b_hidden = tf.Variable(tf.constant(value=0, shape=[n_outputs], dtype=tf.float32))
 
-
+# tf.constant을 사용할수 없다 1차원에 None 이 들어가기 때문인데 그래서 zeros_like 을 사용하는 방법으로 workaround 로 피해갔는데
+# 다른 방법이 없을까?
 hidden_state = tf.zeros_like(init_hidden, dtype=tf.float32)
 
 output_layers = []

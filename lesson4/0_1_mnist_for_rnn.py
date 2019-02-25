@@ -15,7 +15,7 @@ y = tf.placeholder(shape=[None , n_classes] , dtype=tf.float32)
 x_trpose = tf.transpose(x , perm=(1,0,2))
 x_seq = tf.unstack(x_trpose)
 cell = tf.nn.rnn_cell.BasicRNNCell(num_units=100)
-outputs , hidden = tf.nn.static_rnn(cell, inputs=x_seq, dtype=tf.float32)
+outputs, hidden = tf.nn.static_rnn(cell, inputs=x_seq, dtype=tf.float32)
 
 init_value_W= tf.random_normal([100, n_classes], dtype=tf.float32)
 init_value_B = tf.random_normal([n_classes], dtype=tf.float32)
