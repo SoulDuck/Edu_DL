@@ -16,10 +16,10 @@ lr = 0.001
 activation=tf.nn.tanh
 
 
-x = tf.placeholder(shape=[None , timestep , n_inputs] , dtype=tf.float32)
-y = tf.placeholder(shape=[None , n_classes] , dtype=tf.float32)
-init_hidden = tf.placeholder(shape=[None ,n_outputs] , dtype=tf.float32)
-x_trpose = tf.transpose(x , perm=(1,0,2))
+x = tf.placeholder(shape=[None, timestep , n_inputs] , dtype=tf.float32)
+y = tf.placeholder(shape=[None, n_classes] , dtype=tf.float32)
+init_hidden = tf.placeholder(shape=[None, n_outputs] , dtype=tf.float32)
+x_trpose = tf.transpose(x, perm=(1, 0, 2))
 xs_seq = tf.unstack(x_trpose)
 
 
@@ -36,8 +36,10 @@ random_init = tf.random_normal(shape=[n_outputs, n_outputs], dtype=tf.float32, s
 w_hidden = tf.Variable(random_init)
 b_hidden = tf.Variable(tf.constant(value=0, shape=[n_outputs], dtype=tf.float32))
 
+# TODO
 # tf.constant을 사용할수 없다 1차원에 None 이 들어가기 때문인데 그래서 zeros_like 을 사용하는 방법으로 workaround 로 피해갔는데
 # 다른 방법이 없을까?
+
 hidden_state = tf.zeros_like(init_hidden, dtype=tf.float32)
 
 output_layers = []
@@ -46,12 +48,11 @@ for i,x_seq in enumerate(xs_seq):
     hidden_layer = tf.matmul(hidden_state , w_hidden)
 
     now_state = tf.matmul(x_seq, w_in) + b_in
-    output_layer = activation(hidden_layer  + now_state + b_hidden)
+    output_layer = activation(hidden_layer + now_state + b_hidden)
     output_layers.append(output_layer)
     hidden_state = output_layer
 
-logits = tf.layers.dense(output_layers[-1],n_classes)
-
+logits = tf.layers.dense(output_layers[-1], n_classes)
 
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits , labels=y))
 train_op = tf.train.GradientDescentOptimizer(lr).minimize(loss)

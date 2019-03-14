@@ -5,10 +5,12 @@ n_inputs = 3
 n_steps = 2
 
 x = tf.placeholder(tf.float32 , [None, n_steps, n_inputs])
-x_trp = tf.transpose(x , perm=[1,0,2])
+x_trp = tf.transpose(x , perm=[1, 0, 2])
 x_seq = tf.unstack(x_trp)
+
+
 cell = tf.nn.rnn_cell.BasicRNNCell(num_units=5)
-outputs , state = tf.nn.static_rnn(cell , x_seq , dtype=tf.float32)
+outputs , state = tf.nn.static_rnn(cell, x_seq, dtype=tf.float32)
 
 
 ############################
@@ -22,10 +24,14 @@ x_batch = np.array([
     [[9, 0, 1], [3, 2, 1]]
 ])
 
+
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
 outputs_, state_ = sess.run(fetches=[outputs, state], feed_dict={x: x_batch})
+print(outputs_)
+print(state_)
+
 """
 결과 해석
 

@@ -6,12 +6,6 @@ import matplotlib.pyplot as plt
 OutputProjectionWrapper 없이 fully Connected layer 연결해서 학습하기
 이렇게 하면 코드가 간단해 지지만 모든 timestep 마다 fully connencted layer 을 생성해야 해서 속도가 느려집니다 
 (왜 느려지지?)
-
-
-
-
-
-
                        outputs
    --------------------------
 
@@ -35,15 +29,11 @@ t9: |___| ->  |___| -> (output[9])
 
 원작자의 코드는 
 training 을 0~30 까지 모두 쓴다
-
-
 """
-
 
 # Data
 def time_series(t):
     return t * np.sin(t) / 3 + 2 * np.sin(t * 5)
-
 
 t_min, t_max = 0, 30
 resolution = 0.1
@@ -81,8 +71,8 @@ def generate_predict(datum, timestep):
 train_xs, train_ys = generate_predict(train_dataset, n_steps)
 val_xs, val_ys = generate_predict(val_dataset, n_steps)
 
-
 print('train_xs.shape :',train_xs.shape,'\ttrain_ys.shape :',train_ys.shape)
+
 
 def next_batch(xs, ys, batch_size):
     indices = np.random.choice(len(xs), batch_size, replace=True)

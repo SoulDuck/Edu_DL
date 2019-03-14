@@ -41,6 +41,7 @@ for x,y in xs_ys:
     y_hat, loss_ = sess.run([pred, loss], feed_dict={X: x, Y: y})
     ys_hat.append(y_hat)
     lossses.append(loss_)
+    print(loss_)
 
 """
 loss = pred - y

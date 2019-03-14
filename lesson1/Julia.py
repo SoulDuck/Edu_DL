@@ -26,7 +26,7 @@ zs_cast = tf.cast(zs_less , tf.float32)
 
 #
 step = tf.group(
-  tf.assign(zs, zs_sub),오늘
+  tf.assign(zs, zs_sub),
   tf.assign_add(ns, zs_cast)
 )
 
