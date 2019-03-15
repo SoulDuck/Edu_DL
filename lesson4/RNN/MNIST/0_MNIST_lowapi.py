@@ -15,13 +15,11 @@ n_outputs = 100
 lr = 0.001
 activation=tf.nn.tanh
 
-
 x = tf.placeholder(shape=[None, timestep , n_inputs] , dtype=tf.float32)
-y = tf.placeholder(shape=[None, n_classes] , dtype=tf.float32)
+y = tf.placeholder(shape=[None, n_classes] , dtype=tf.int64)
 init_hidden = tf.placeholder(shape=[None, n_outputs] , dtype=tf.float32)
 x_trpose = tf.transpose(x, perm=(1, 0, 2))
 xs_seq = tf.unstack(x_trpose)
-
 
 # Input Layer
 hidden_state_seq = []
@@ -55,6 +53,9 @@ for i,x_seq in enumerate(xs_seq):
 logits = tf.layers.dense(output_layers[-1], n_classes)
 
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits , labels=y))
+logits_cls = tf.argmax(logits, axis=1)
+y_cls = tf.argmax(y, axis=1)
+acc = tf.reduce_mean(tf.cast(tf.equal(logits_cls, y_cls), tf.float32))
 train_op = tf.train.GradientDescentOptimizer(lr).minimize(loss)
 
 sess = tf.Session()
@@ -65,5 +66,5 @@ for i in range(3000):
     batch_xs, batch_ys = mnist.train.next_batch(batch_size)
     batch_xs = batch_xs.reshape(batch_size, 28,28)
     init_hidden_value = np.zeros(shape=[batch_size, n_outputs], dtype=np.float32)
-    _, train_loss = sess.run([train_op, loss], feed_dict={x: batch_xs , y: batch_ys , init_hidden: init_hidden_value})
-    print(train_loss)
+    acc_, _, train_loss = sess.run([acc, train_op, loss], feed_dict={x: batch_xs , y: batch_ys , init_hidden: init_hidden_value})
+    print(train_loss, acc_)

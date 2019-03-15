@@ -93,6 +93,7 @@ x = tf.placeholder(tf.float32, [None, n_steps, n_inputs])
 y = tf.placeholder(tf.float32, [None, n_steps, n_inputs])
 
 cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_neurons, activation=tf.nn.relu)
+
 outputs, states = tf.nn.dynamic_rnn(cell, x, dtype=tf.float32)
 stacked_outputs = tf.reshape(outputs, shape=[-1, n_neurons])
 stacked_logits = tf.layers.dense(stacked_outputs, n_outputs)

@@ -15,13 +15,13 @@ y = tf.placeholder(shape=[None , n_classes] , dtype=tf.float32)
 x_trpose = tf.transpose(x , perm=(1,0,2))
 x_seq = tf.unstack(x_trpose)
 cell = tf.nn.rnn_cell.BasicRNNCell(num_units=100)
-outputs, hidden = tf.nn.static_rnn(cell, inputs=x_seq, dtype=tf.float32)
+outputs, hidden = tf.nn.dynamic_rnn(cell, inputs=x_seq, dtype=tf.float32)
 
 init_value_W= tf.random_normal([100, n_classes], dtype=tf.float32)
 init_value_B = tf.random_normal([n_classes], dtype=tf.float32)
 W=tf.Variable(init_value_W)
 B=tf.Variable(init_value_B)
-output = tf.matmul(hidden ,W) +B
+output = tf.matmul(hidden, W) + B
 
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=output, labels=y))
 train_op = tf.train.GradientDescentOptimizer(lr).minimize(loss)

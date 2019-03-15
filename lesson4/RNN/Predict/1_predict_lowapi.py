@@ -48,7 +48,7 @@ val_xs, val_ys = generate_predict(val_dataset, n_steps)
 n_inputs = 1
 n_neurons = 100
 n_outputs = 1
-lr = 0.00001
+lr = 0.001
 
 # Model
 x = tf.placeholder(tf.float32, [None, n_steps])
@@ -70,7 +70,7 @@ b = tf.Variable(init_b)
 init_hidden = tf.placeholder(shape=[None, n_neurons], dtype=tf.float32)
 hidden_state = tf.zeros_like(init_hidden, dtype=tf.float32)
 
-activation = tf.nn.relu
+activation = tf.nn.tanh
 output_layers = []
 logits_list = []
 
@@ -102,9 +102,6 @@ batch_size = 60
 init_hidden_value = np.zeros(shape=[batch_size, n_neurons], dtype=np.float32)
 for step in range(3000):
     batch_xs, batch_ys = next_batch(train_xs, train_ys, batch_size)
-    import matplotlib.pyplot as plt
-    plt.scatter(range(len(batch_xs[0])), (batch_xs[0]))
-    plt.show()
     _, train_loss = sess.run([train_op, loss],
                          feed_dict={x: batch_xs, y: batch_ys, init_hidden: init_hidden_value})
 
