@@ -1,5 +1,4 @@
 from six.moves import urllib
-
 import errno
 import os
 import zipfile
@@ -7,7 +6,7 @@ import numpy as np
 import tensorflow as tf
 from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
-from collections import Counter ,deque
+from collections import Counter, deque
 
 """
 
@@ -19,19 +18,6 @@ Text -> Vector
 
 WORDS_PATH = "datasets/words"
 WORDS_URL = 'http://mattmahoney.net/dc/text8.zip'
-
-
-def mkdir_p(path):
-    """Create directories, ok if they already exist.
-    This is for python 2 support. In python >=3.2, simply use:
-    """
-    try:
-        os.makedirs(path)
-    except OSError as exc:
-        if exc.errno == errno.EEXIST and os.path.isdir(path):
-            pass
-        else:
-            raise
 
 
 def fetch_words_data(words_url=WORDS_URL, words_path=WORDS_PATH):
@@ -63,35 +49,66 @@ print(words[24], data[24])
 # Generate batches
 def generate_batch(batch_size, num_skips, skip_window):
     global data_index
+    print('init data index : ', data_index)
+
     assert batch_size % num_skips == 0
     assert num_skips <= 2 * skip_window
-    batch = np.ndarray(shape=[batch_size], dtype=np.int32)
-    labels = np.ndarray(shape=[batch_size, 1], dtype=np.int32)
+    # Define batch , labels
+    batch = np.zeros(shape=[batch_size], dtype=np.int32)
+    labels = np.zeros(shape=[batch_size, 1], dtype=np.int32)
+    # define window size
     span = 2 * skip_window + 1  # [ skip_window target skip_window ]
+    # generate queue can be access bidirectional
     buffer = deque(maxlen=span)
+
     for _ in range(span):
         buffer.append(data[data_index])
         data_index = (data_index + 1) % len(data)
+    # buffer = deque([5234, 3081, 12], maxlen=3) , data index == 3
+
+    print('init buffer state :', buffer)
+    print('init data_index  :', data_index )
+    print('init batch state :', batch)
+    print('init label :', labels.T)
+
     for i in range(batch_size // num_skips):
         target = skip_window  # target label at the center of the buffer
         targets_to_avoid = [skip_window]
+        print('############################')
         for j in range(num_skips):
             while target in targets_to_avoid:
                 target = np.random.randint(0, span)
             targets_to_avoid.append(target)
             batch[i * num_skips + j] = buffer[skip_window]
             labels[i * num_skips + j, 0] = buffer[target]
+            print('i : {} , j : {} '.format(i, j))
+            print('target', target)
+            print('target to avoid', targets_to_avoid)
+            print('batch', batch)
+            print('label', labels.T)
+
         buffer.append(data[data_index])
         data_index = (data_index + 1) % len(data)
+        # show
+        print('buffer : ',buffer)
+        print('data_index: ', data_index)
+        print('############################')
+
     return batch, labels
 
 
 np.random.seed(42)
 data_index = 0
 batch, labels = generate_batch(8, 2, 1)
+print('data index ', data_index)
+print('# data : ', len(data))
+
 batch, [vocabulary[word] for word in batch]
 labels, [vocabulary[word] for word in labels[:, 0]]
 
+print(vocabulary)
+print(labels)
+exit()
 # Build Model
 batch_size = 128
 embedding_size = 128  # Dimension of the embedding vector.
