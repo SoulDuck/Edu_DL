@@ -1,11 +1,11 @@
-import tensorflow as tf
-import numpy as np
-
-import data
-import utils
-
 import argparse
 import random
+
+import numpy as np
+import tensorflow as tf
+
+import data
+from DataExtractor import utils
 
 ####
 # disable logs

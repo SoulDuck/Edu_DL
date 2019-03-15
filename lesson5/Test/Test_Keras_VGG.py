@@ -1,12 +1,14 @@
-import unittest
 import sys
+import unittest
+
 sys.path.append('../')
 
-from extract import DogExtractor
-from load import DogDataGenerator
+from DataExtractor.extract import DogExtractor
+from DataExtractor.load import DogDataGenerator
 from keras.layers import Input
 from keras_vgg import vgg11, vgg13, vgg16, vgg19, logits , training
-import configure as cfg
+from DataExtractor import configure as cfg
+
 
 class TestKerasAlexnet(unittest.TestCase):
     def setUp(self):

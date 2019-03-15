@@ -179,8 +179,8 @@ def vgg_19(input_shape, n_classes):
 def training(model, optimizer_name, lr, epochs, data_generator):
     """
     # Usage :
-    >>> from extract import DogExtractor
-    >>> from load import DogDataGenerator
+    >>> from DataExtractor.extract import DogExtractor
+    >>> from DataExtractor.load import DogDataGenerator
     >>> dex = DogExtractor('../data/dog_breed')
     >>> doggen = DogDataGenerator(dex)
     >>> model = vgg_11((224,224,3) , 120)

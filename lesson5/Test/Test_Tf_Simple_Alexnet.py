@@ -2,10 +2,9 @@ import sys
 sys.path.append('../')
 sys.path.append('../../')
 import unittest
-import cifar
 import tensorflow as tf
 import tf_simple_alexnet
-import utils
+from DataExtractor import utils, cifar
 
 
 class TestTFSimpleAlexnet(unittest.TestCase):

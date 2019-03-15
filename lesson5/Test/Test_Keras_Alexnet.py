@@ -1,15 +1,15 @@
-import unittest
 import sys
+import unittest
+
 sys.path.append('../')
 sys.path.append('/Library/Frameworks/Python.framework/Versions/3.7/lib/python3.7/site-packages')
-from extract import DogExtractor
-from load import DogDataGenerator
+from DataExtractor.extract import DogExtractor
+from DataExtractor.load import DogDataGenerator
 from keras.layers import Input
 from keras.models import Model
 from keras.optimizers import SGD
 from keras_alexnet import alexnet , logits , training
-import configure as cfg
-import cifar
+from DataExtractor import cifar, configure as cfg
 
 
 class TestKerasAlexnet(unittest.TestCase):

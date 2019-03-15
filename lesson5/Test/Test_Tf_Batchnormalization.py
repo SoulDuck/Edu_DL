@@ -2,7 +2,7 @@ import sys
 sys.path.append('../')
 sys.path.append('../../')
 import unittest
-import cifar
+from DataExtractor import cifar
 import tensorflow as tf
 import tf_simple_resnet
 from PIL import Image
