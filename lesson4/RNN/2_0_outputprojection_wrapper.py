@@ -27,7 +27,7 @@ x = tf.placeholder(tf.float32, [None, n_steps, n_inputs])
 seq_length = tf.placeholder(tf.int32, [None])  # [2, 1, 2, 2]
 
 cell = tf.nn.rnn_cell.BasicRNNCell(num_units=5)
-wrapped_cell = tf.contrib.rnn.OutputProjectionWrapper(cell=cell, output_size=1)
+wrapped_cell = tf.contrib.rnn.OutputProjectionWrapper(cell=cell, output_size=1,)
 outputs, state = tf.nn.dynamic_rnn(wrapped_cell , x, dtype=tf.float32, sequence_length=seq_length)
 ############################
 # time_step1, time_step2   #

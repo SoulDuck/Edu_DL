@@ -7,36 +7,53 @@ import numpy as np
 mnist = input_data.read_data_sets('MNIST_data', one_hot=True)
 
 """
-구현 목적:  
-rnn 을 low level api 형태로 코딩해서 원리를 파악합니다.
+Multilayer 을 구축합니다. 
+구현 조건 
+1. RNN 층을 Multilayer 층을 4개 만들고
+2. 첫번째 층에는 dropout state 층에 keep prob 을 0.3 줍니다. (n_untis = 100 ) 
+3. 2번째 층에는 dropout input 층에 Dropout 을 적용하고 keep prob 을 0.3 줍니다. 
+3. 3번째 층에는 OutputProjectionWrapper 을 사용해 logits 을 생성합니다.
+
+dynamic RNN 으로 구현합니다.
+ 
 """
+
+
 n_classes = 10
 timestep = 28
 n_inputs = 28
-n_units = 100
+n_units_0 = 100
+n_units_1 = 50
+n_units_2 = 50
+
 lr = 0.001
 activation = tf.nn.tanh
 
+tf.reset_default_graph()
 # define Input
 x = tf.placeholder(shape=[None, timestep, n_inputs], dtype=tf.float32)
 y = tf.placeholder(shape=[None, n_classes], dtype=tf.float32)
-x_trpose = tf.transpose(x, perm=(1, 0, 2))
-x_seq = tf.unstack(x_trpose)
+keep_prob = tf.placeholder_with_default(input=0.3, shape=[])
 
 # Model
-cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_units)
-outputs, hidden = tf.nn.static_rnn(cell, inputs=x_seq, dtype=tf.float32, )
+# Define cell 1
+cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_units_0)
+wrapper_cell = tf.nn.rnn_cell.DropoutWrapper(cell, state_keep_prob=keep_prob)
 
-# Logits
-init_value_W = tf.random_normal([n_units, n_classes], dtype=tf.float32)
-init_value_B = tf.random_normal([n_classes], dtype=tf.float32)
-W = tf.Variable(init_value_W)
-B = tf.Variable(init_value_B)
-logits = tf.matmul(hidden, W) + B
+cell_1 = tf.nn.rnn_cell.BasicRNNCell(num_units=n_units_1)
+wrapper_cell_1 = tf.nn.rnn_cell.DropoutWrapper(cell_1, input_keep_prob=keep_prob)
+
+cell_2 = tf.nn.rnn_cell.BasicRNNCell(num_units=n_units_2)
+wrapper_cell_2 = tf.contrib.rnn.OutputProjectionWrapper(cell_2, n_classes)
+
+mul_cell = tf.nn.rnn_cell.MultiRNNCell(cells=[wrapper_cell, wrapper_cell_1, wrapper_cell_2])
+
+outputs, states = tf.nn.dynamic_rnn(mul_cell , inputs=x, dtype=tf.float32)
+
+logits = outputs[:, -1, :]
 
 # Loss , Optimizer
-loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits,
-                                                                 labels=y))
+loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits, labels=y))
 train_op = tf.train.GradientDescentOptimizer(lr).minimize(loss)
 
 # Metric
@@ -47,6 +64,8 @@ acc = tf.reduce_mean(tf.cast(tf.equal(logits_cls, y_cls), tf.float32))
 # Sesion
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
+
+
 
 # Training
 start_time = time.time()
@@ -62,9 +81,8 @@ for i in range(max_step):
         val_imgs, val_labs = mnist.validation.images, mnist.validation.labels
         n_val = len(val_labs)
         val_imgs = val_imgs.reshape(n_val, 28, 28)
-        init_hidden_value = np.zeros(shape=[n_val, n_units], dtype=np.float32)
         val_acc, val_loss = sess.run([acc, loss],
-                                     feed_dict={x: val_imgs, y: val_labs})
+                                     feed_dict={x: val_imgs, y: val_labs , keep_prob: 1.0})
         print('training acc {:4f} loss {:4f} Validation acc {:4f} , loss {:4f}'. \
               format(train_acc, train_loss, val_acc, val_loss))
 

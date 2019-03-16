@@ -17,26 +17,25 @@ n_units = 100
 lr = 0.001
 activation = tf.nn.tanh
 
+tf.reset_default_graph()
 # define Input
 x = tf.placeholder(shape=[None, timestep, n_inputs], dtype=tf.float32)
 y = tf.placeholder(shape=[None, n_classes], dtype=tf.float32)
-x_trpose = tf.transpose(x, perm=(1, 0, 2))
-x_seq = tf.unstack(x_trpose)
 
 # Model
-cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_units)
-outputs, hidden = tf.nn.static_rnn(cell, inputs=x_seq, dtype=tf.float32, )
+cell = tf.nn.rnn_cell.LSTMCell(num_units=n_units)
+wrapped_cell = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size = n_classes)
+outputs, states = tf.nn.dynamic_rnn(wrapped_cell, inputs=x, dtype=tf.float32)
+""" 
+dynamic_rnn cell 을 넣으면 [None, time_step , n_clases] shape 의 tensor 가 나옵니다. 
+여기서 우리는 output tensor 을 [:, -1, :] 같이 슬라이스 합니다.
+"""
+#
 
-# Logits
-init_value_W = tf.random_normal([n_units, n_classes], dtype=tf.float32)
-init_value_B = tf.random_normal([n_classes], dtype=tf.float32)
-W = tf.Variable(init_value_W)
-B = tf.Variable(init_value_B)
-logits = tf.matmul(hidden, W) + B
+logits = outputs[:,-1,:]
 
 # Loss , Optimizer
-loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits,
-                                                                 labels=y))
+loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits))
 train_op = tf.train.GradientDescentOptimizer(lr).minimize(loss)
 
 # Metric
@@ -47,6 +46,8 @@ acc = tf.reduce_mean(tf.cast(tf.equal(logits_cls, y_cls), tf.float32))
 # Sesion
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
+
+
 
 # Training
 start_time = time.time()
