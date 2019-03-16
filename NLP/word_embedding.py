@@ -1,10 +1,8 @@
 from six.moves import urllib
-import errno
 import os
 import zipfile
 import numpy as np
 import tensorflow as tf
-from sklearn.manifold import TSNE
 import matplotlib.pyplot as plt
 from collections import Counter, deque
 
@@ -108,7 +106,7 @@ labels, [vocabulary[word] for word in labels[:, 0]]
 
 print(vocabulary)
 print(labels)
-exit()
+
 # Build Model
 batch_size = 128
 embedding_size = 128  # Dimension of the embedding vector.
