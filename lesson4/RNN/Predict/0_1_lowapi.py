@@ -2,51 +2,52 @@ import tensorflow as tf
 import numpy as np
 import matplotlib.pyplot as plt
 
+
 def time_series(t):
     return t * np.sin(t) / 3 + 2 * np.sin(t * 5)
 
-def normalize(min_, max_ , datum):
+
+def normalize(min_, max_, datum):
     datum = np.asarray(datum)
     return (datum - min_)/(max_ - min_)
 
+
 def generate_predict(datum, timestep):
-    xs = []
-    ys = []
-    for i in range(len(datum) - timestep):
+    sliced_xs = []
+    sliced_ys = []
+    for ind in range(len(datum) - timestep):
         """
         please first read this 
         if x is =[ 0 ,0.1, 0.2, 0.3, 0.4 , 0.5], timestpe is 5 
         x = [0 ,0.1, 0.2, 0.3, 0.4] <- datum[0: 0 + timestep
         y = [0.5] <- datum[0: 0 + timestep <- datum[i + timestep]
         """
-        xs.append(datum[i: i + timestep])  # if time step = 5 [0 ,0.1, 0.2, 0.3, 0.4]
-        ys.append(datum[i + 1: i + timestep + 1])  # if time step = 5[0.5]
-    return np.asarray(xs), np.asarray(ys)
+        sliced_xs.append(datum[ind: ind + timestep])  # if time step = 5 [0 ,0.1, 0.2, 0.3, 0.4]
+        sliced_ys.append(datum[ind + 1: ind + timestep + 1])  # if time step = 5[0.5]
+    return np.asarray(sliced_xs), np.asarray(sliced_ys)
 
 
-def next_batch(xs, ys, batch_size):
-    indices = np.random.choice(range(len(xs)), batch_size, replace=False)
-    return xs[indices] , ys[indices]
+def next_batch(xs, ys, n_batch):
+    indices = np.random.choice(range(len(xs)), n_batch, replace=False)
+    return xs[indices], ys[indices]
+
 
 # 데이터의 범위를 설정합니다.
 t_min, t_max = 0, 30
 resolution = 0.1
 
-
-
-
 # Training Data
 start_train = 0.0
 end_train = 25.0  # 12.2 + 0.1 * (n_steps + 1)
 train_x_axis = np.arange(start_train, end_train, 0.1)
-#train_x_axis = normalize(np.min(train_x_axis) , np.max(train_x_axis), train_x_axis)
+# train_x_axis = normalize(np.min(train_x_axis) , np.max(train_x_axis), train_x_axis)
 train_dataset = time_series(train_x_axis)
 
 # Validation Data
 start_val = 25.0
 end_val = 30.0
 val_x_axis = np.arange(start_val, end_val, 0.1)
-#val_x_axis = normalize(np.min(train_x_axis) , np.max(train_x_axis), train_x_axis)
+# val_x_axis = normalize(np.min(train_x_axis) , np.max(train_x_axis), train_x_axis)
 val_dataset = time_series(val_x_axis)
 
 # Time Step 의 길이를 지정합니다
@@ -63,7 +64,7 @@ lr = 0.001
 # Model
 x = tf.placeholder(tf.float32, [None, n_steps])
 x_res = tf.reshape(x, shape=[-1, n_steps, n_inputs])
-x_trpose = tf.transpose(x_res , perm=(1, 0, 2))
+x_trpose = tf.transpose(x_res, perm=(1, 0, 2))
 xs_seq = tf.unstack(x_trpose)
 
 y = tf.placeholder(tf.float32, [None, n_steps])
@@ -95,13 +96,13 @@ for i, x_seq in enumerate(xs_seq):
 
 
 stacked_outputs = tf.stack(output_layers)
-stacked_outputs = tf.reshape(stacked_outputs, shape=[-1,100])
+stacked_outputs = tf.reshape(stacked_outputs, shape=[-1, 100])
 stacked_logits = tf.layers.dense(stacked_outputs, n_outputs)
 outputs = tf.reshape(stacked_logits, [n_steps, -1, n_outputs])
 outputs = tf.transpose(outputs, perm=[1, 0, 2])
 
 loss = tf.reduce_mean(tf.square(outputs - y_res))
-train_op = tf.train.AdamOptimizer(learning_rate=lr).minimize((loss))
+train_op = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
 
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
@@ -112,18 +113,17 @@ init_hidden_value = np.zeros(shape=[batch_size, n_neurons], dtype=np.float32)
 for step in range(3000):
     batch_xs, batch_ys = next_batch(train_xs, train_ys, batch_size)
     _, train_loss = sess.run([train_op, loss],
-                         feed_dict={x: batch_xs, y: batch_ys, init_hidden: init_hidden_value})
+                             feed_dict={x: batch_xs, y: batch_ys, init_hidden: init_hidden_value})
 
     print(train_loss)
 
-# TODO
-# 데이터 Test Code 작성하기
 
+# Show Graph
 predicts = []
 init_hidden_value = np.zeros(shape=[1, n_neurons], dtype=np.float32)
-for xs in val_xs:
-    xs = xs.reshape(1, n_steps)
-    outputs_ = sess.run([outputs], feed_dict={x: xs, init_hidden: init_hidden_value})
+for val_x in val_xs:
+    val_x = val_x.reshape(1, n_steps)
+    outputs_ = sess.run([outputs], feed_dict={x: val_x, init_hidden: init_hidden_value})
     predicts.append(np.squeeze(outputs_)[-1])
 predicts = np.asarray(predicts)
 """
@@ -143,7 +143,3 @@ plt.scatter(x_axis, val_dataset[n_steps:], c='r', label='true')
 plt.scatter(x_axis, predicts, c='b', label='predict')
 plt.legend()
 plt.show()
-
-
-
-
