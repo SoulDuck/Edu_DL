@@ -94,9 +94,8 @@ for i, x_seq in enumerate(xs_seq):
     output_layers.append(output_layer)
     hidden_state = output_layer
 
-
-stacked_outputs = tf.stack(output_layers)
-stacked_outputs = tf.reshape(stacked_outputs, shape=[-1, 100])
+# stacked_outputs = tf.stack(output_layers)
+stacked_outputs = tf.reshape(output_layers, shape=[-1, 100])
 stacked_logits = tf.layers.dense(stacked_outputs, n_outputs)
 outputs = tf.reshape(stacked_logits, [n_steps, -1, n_outputs])
 outputs = tf.transpose(outputs, perm=[1, 0, 2])
@@ -116,7 +115,6 @@ for step in range(3000):
                              feed_dict={x: batch_xs, y: batch_ys, init_hidden: init_hidden_value})
 
     print(train_loss)
-
 
 # Show Graph
 predicts = []
