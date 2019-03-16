@@ -33,7 +33,7 @@ mul_cell = tf.nn.rnn_cell.MultiRNNCell(cells=[cell, wrapper_cell])
 
 outputs, states = tf.nn.dynamic_rnn(mul_cell , inputs=x, dtype=tf.float32)
 """ 
-dynamic_rnn cell 을 넣으면 [None, time_step , n_clases] shape 의 tensor 가 나옵니다. 
+dynamic_rnn cell 을 넣으면 [None, time_step , n_clase2222s] shape 의 tensor 가 나옵니다. 
 여기서 우리는 output tensor 을 [:, -1, :] 같이 슬라이스 합니다.
 """
 #
