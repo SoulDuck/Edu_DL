@@ -35,5 +35,12 @@ rf-calculator : Receprive Field Calculator
 + `BasicRNNCell`, `dynamci_rnn` 을 사용해 간단한 RNN 을 만들어 보고 실습해 봅니다
 
 + `BasicRNNCell`  `static_rnn` `OutputProjectionWrapper` 을 사용해 간단한 RNN 을 만들어 보고 실습해 봅니다
+
++ RNN 에 Dropout을 적용해 봅니다. `tf.nn.rnn_cell.DropoutWrapper` 을 사용해 봅니다.
+
++ 여러개의 cell 을 합쳐 Deep 하게 layer 을 쌓아 봅니다. multilayer 을 적용해 봅니다.
+
+
+
 #TODO
 - Tensorboard 로 Graph 뽑아보기
