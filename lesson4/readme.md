@@ -30,9 +30,9 @@ rf-calculator : Receprive Field Calculator
 
 + low api 로 RNN 을 작성하는 법을 배워봅니다
 
-+ `BasicRNNCell, static_rnn` 을 사용해서 사용해 간단한 RNN 을 만들어 보고 실습해 봅니다.
++ `BasicRNNCell`, `static_rnn` 을 사용해서 사용해 간단한 RNN 을 만들어 보고 실습해 봅니다.
 
-+ `BasicRNNCell, dynamci_rnn` 을 사용해 간단한 RNN 을 만들어 보고 실습해 봅니다
++ `BasicRNNCell`, `dynamci_rnn` 을 사용해 간단한 RNN 을 만들어 보고 실습해 봅니다
 
 + `BasicRNNCell`  `static_rnn` `OutputProjectionWrapper` 을 사용해 간단한 RNN 을 만들어 보고 실습해 봅니다
 #TODO
