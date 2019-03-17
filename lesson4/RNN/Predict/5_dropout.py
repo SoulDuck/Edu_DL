@@ -69,13 +69,9 @@ keep_prob = tf.placeholder_with_default(0.7, shape=[])
 # Model
 cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_neurons, activation=tf.nn.relu)
 wrapped_cell = tf.nn.rnn_cell.DropoutWrapper(cell , state_keep_prob=keep_prob)
-wrapper_cell = tf.contrib.rnn.OutputProjectionWrapper(wrapped_cell, n_inputs)
+wrapped_cell = tf.contrib.rnn.OutputProjectionWrapper(wrapped_cell, n_outputs)
 
 outputs, states = tf.nn.dynamic_rnn(wrapped_cell, inputs=x, dtype=tf.float32)
-
-stacked_outputs = tf.reshape(outputs, shape=[-1, 100])
-stacked_logits = tf.layers.dense(stacked_outputs, n_outputs)
-outputs = tf.reshape(stacked_logits, [-1, n_steps, n_outputs])
 
 loss = tf.reduce_mean(tf.square(outputs - y))
 train_op = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
