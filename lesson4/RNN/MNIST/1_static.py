@@ -25,14 +25,14 @@ x_seq = tf.unstack(x_trpose)
 
 # Model
 cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_units)
-outputs, hidden = tf.nn.static_rnn(cell, inputs=x_seq, dtype=tf.float32, )
+outputs, state = tf.nn.static_rnn(cell, inputs=x_seq, dtype=tf.float32, )
 
 # Logits
 init_value_W = tf.random_normal([n_units, n_classes], dtype=tf.float32)
 init_value_B = tf.random_normal([n_classes], dtype=tf.float32)
 W = tf.Variable(init_value_W)
 B = tf.Variable(init_value_B)
-logits = tf.matmul(hidden, W) + B
+logits = tf.matmul(state, W) + B
 
 # Loss , Optimizer
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=logits,
@@ -65,10 +65,9 @@ for i in range(max_step):
         init_hidden_value = np.zeros(shape=[n_val, n_units], dtype=np.float32)
         val_acc, val_loss = sess.run([acc, loss],
                                      feed_dict={x: val_imgs, y: val_labs})
-        print('training acc {:4f} loss {:4f} Validation acc {:4f} , loss {:4f}'. \
-              format(train_acc, train_loss, val_acc, val_loss))
+        print('training acc {:4f} loss {:4f} Validation acc {:4f} , loss {:4f}'.format(train_acc, train_loss, val_acc,
+                                                                                       val_loss))
 
 # Validation
 consume_time = time.time() - start_time
-print('batch_size : {} , total step : {} , comsume time : {:4}'. \
-      format(batch_size, max_step, consume_time))
+print('batch_size : {} , total step : {} , comsume time : {:4}'.format(batch_size, max_step, consume_time))

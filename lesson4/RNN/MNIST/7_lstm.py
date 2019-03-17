@@ -24,7 +24,7 @@ y = tf.placeholder(shape=[None, n_classes], dtype=tf.float32)
 
 # Model
 cell = tf.nn.rnn_cell.LSTMCell(num_units=n_units)
-wrapped_cell = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size = n_classes)
+wrapped_cell = tf.contrib.rnn.OutputProjectionWrapper(cell, output_size=n_classes)
 outputs, states = tf.nn.dynamic_rnn(wrapped_cell, inputs=x, dtype=tf.float32)
 """ 
 dynamic_rnn cell 을 넣으면 [None, time_step , n_clases] shape 의 tensor 가 나옵니다. 
@@ -32,7 +32,7 @@ dynamic_rnn cell 을 넣으면 [None, time_step , n_clases] shape 의 tensor 가
 """
 #
 
-logits = outputs[:,-1,:]
+logits = outputs[:, -1, :]
 
 # Loss , Optimizer
 loss = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(labels=y, logits=logits))
@@ -46,8 +46,6 @@ acc = tf.reduce_mean(tf.cast(tf.equal(logits_cls, y_cls), tf.float32))
 # Sesion
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
-
-
 
 # Training
 start_time = time.time()
@@ -66,10 +64,9 @@ for i in range(max_step):
         init_hidden_value = np.zeros(shape=[n_val, n_units], dtype=np.float32)
         val_acc, val_loss = sess.run([acc, loss],
                                      feed_dict={x: val_imgs, y: val_labs})
-        print('training acc {:4f} loss {:4f} Validation acc {:4f} , loss {:4f}'. \
-              format(train_acc, train_loss, val_acc, val_loss))
+        print('training acc {:4f} loss {:4f} Validation acc {:4f} , loss {:4f}'.format(train_acc, train_loss, val_acc,
+                                                                                       val_loss))
 
 # Validation
 consume_time = time.time() - start_time
-print('batch_size : {} , total step : {} , comsume time : {:4}'. \
-      format(batch_size, max_step, consume_time))
+print('batch_size : {} , total step : {} , comsume time : {:4}'.format(batch_size, max_step, consume_time))

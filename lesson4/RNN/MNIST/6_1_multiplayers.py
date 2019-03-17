@@ -18,7 +18,6 @@ dynamic RNN 으로 구현합니다.
  
 """
 
-
 n_classes = 10
 timestep = 28
 n_inputs = 28
@@ -65,8 +64,6 @@ acc = tf.reduce_mean(tf.cast(tf.equal(logits_cls, y_cls), tf.float32))
 sess = tf.Session()
 sess.run(tf.global_variables_initializer())
 
-
-
 # Training
 start_time = time.time()
 max_step = 50000
@@ -83,10 +80,9 @@ for i in range(max_step):
         val_imgs = val_imgs.reshape(n_val, 28, 28)
         val_acc, val_loss = sess.run([acc, loss],
                                      feed_dict={x: val_imgs, y: val_labs , keep_prob: 1.0})
-        print('training acc {:4f} loss {:4f} Validation acc {:4f} , loss {:4f}'. \
-              format(train_acc, train_loss, val_acc, val_loss))
+        print('training acc {:4f} loss {:4f} Validation acc {:4f} , loss {:4f}'.format(train_acc, train_loss, val_acc,
+                                                                                       val_loss))
 
 # Validation
 consume_time = time.time() - start_time
-print('batch_size : {} , total step : {} , comsume time : {:4}'. \
-      format(batch_size, max_step, consume_time))
+print('batch_size : {} , total step : {} , comsume time : {:4}'.format(batch_size, max_step, consume_time))
