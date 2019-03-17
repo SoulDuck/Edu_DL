@@ -4,8 +4,8 @@
  Low API 을 사용합는 법과 High Level API 을 사용하는법에 대해서 배웁니다
 
 + Padding 에 관해서 배웁니다.
-1. Tensorflow 가 padding 을 어떻게 주는지에 대해서 알아봅니다
-2. Tensorflow 에서 제공하는 padding 방법 (SAME , VALID) 에 대해 알아봅니다
+    + 1. Tensorflow 가 padding 을 어떻게 주는지에 대해서 알아봅니다
+    + 2. Tensorflow 에서 제공하는 padding 방법 (SAME , VALID) 에 대해 알아봅니다
 
 + Stride 에 대해 알아봅니다
 
@@ -26,7 +26,7 @@ rf-calculator : Receprive Field Calculator
 
 
 
-RNN
+# RNN
 
 #TODO
 - Tensorboard 로 Graph 뽑아보기
