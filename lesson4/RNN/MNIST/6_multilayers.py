@@ -28,7 +28,7 @@ keep_prob = tf.placeholder_with_default(input=0.5, shape=[])
 # Model
 cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_0_units)
 cell_1 = tf.nn.rnn_cell.BasicRNNCell(num_units=n_1_units)
-wrapper_cell = tf.contrib.rnn.OutputProjectionWrapper(cell_1 , n_classes)
+wrapper_cell = tf.contrib.rnn.OutputProjectionWrapper(cell_1, n_classes)
 mul_cell = tf.nn.rnn_cell.MultiRNNCell(cells=[cell, wrapper_cell])
 
 outputs, states = tf.nn.dynamic_rnn(mul_cell , inputs=x, dtype=tf.float32)

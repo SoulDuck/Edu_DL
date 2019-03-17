@@ -58,7 +58,6 @@ val_xs, val_ys = generate_predict(val_dataset, n_steps)
 # Model Parameter
 n_inputs = 1
 n_neurons = 100
-n_neurons_1 = 150
 n_outputs = 1
 lr = 0.001
 
@@ -67,12 +66,12 @@ x = tf.placeholder(tf.float32, [None, n_steps, n_inputs])
 y = tf.placeholder(tf.float32, [None, n_steps, n_inputs])
 
 # Model
-cell = tf.nn.rnn_cell.BasicRNNCell(num_units=n_neurons, activation=tf.nn.relu)
-cell_1 = tf.nn.rnn_cell.BasicRNNCell(num_units=n_neurons_1, activation=tf.nn.relu)
-wrapped_cell = tf.contrib.rnn.OutputProjectionWrapper(cell_1, output_size=n_outputs)
+cell = tf.nn.rnn_cell.LSTMCell(num_units=n_neurons, activation=tf.nn.relu)
+outputs, states = tf.nn.dynamic_rnn(cell, x, dtype=tf.float32)
 
-mul_cell = tf.nn.rnn_cell.MultiRNNCell(cells=[cell, wrapped_cell])
-outputs, states = tf.nn.dynamic_rnn(mul_cell, x, dtype=tf.float32)
+stacked_outputs = tf.reshape(outputs, shape=[-1, 100])
+stacked_logits = tf.layers.dense(stacked_outputs, n_outputs)
+outputs = tf.reshape(stacked_logits, [-1, n_steps, n_outputs])
 
 loss = tf.reduce_mean(tf.square(outputs - y))
 train_op = tf.train.AdamOptimizer(learning_rate=lr).minimize(loss)
@@ -92,6 +91,8 @@ sess.run(tf.global_variables_initializer())
 # Loss
 batch_xs, batch_ys = next_batch(train_xs, train_ys, batch_size)
 batch_xs, batch_ys = [batch.reshape([batch_size, n_steps, n_inputs]) for batch in [batch_xs, batch_ys]]
+loss_ = sess.run([loss], feed_dict={x: batch_xs, y: batch_ys})
+
 for i in range(iterations):
     batch_xs, batch_ys = next_batch(train_xs, train_ys, batch_size)
     batch_xs, batch_ys = [batch.reshape([batch_size, n_steps, n_inputs]) for batch in [batch_xs, batch_ys]]
